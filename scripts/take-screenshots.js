@@ -3,7 +3,6 @@
  * Headless Chrome screenshots of the example dashboard.
  * Usage: node take-screenshots.js <url> <outdir> <chromePath>
  */
-const fs = require("fs");
 const path = require("path");
 const puppeteer = require("puppeteer-core");
 
@@ -12,6 +11,8 @@ if (!url || !outdir || !chromePath) {
   console.error("usage: take-screenshots.js <url> <outdir> <chromePath>");
   process.exit(1);
 }
+
+const pause = (ms) => new Promise((r) => setTimeout(r, ms));
 
 (async () => {
   const browser = await puppeteer.launch({
@@ -24,40 +25,116 @@ if (!url || !outdir || !chromePath) {
   await page.emulateMediaFeatures([{ name: "prefers-color-scheme", value: "dark" }]);
   await page.setBypassCSP(true);
 
-  async function goto() {
+  async function goto(viewport) {
+    if (viewport) await page.setViewport(viewport);
     await page.goto(url, { waitUntil: "networkidle0", timeout: 30000 });
     await page.waitForSelector(".week", { timeout: 10000 });
-    await new Promise((r) => setTimeout(r, 200));
+    await pause(250);
   }
 
-  // Desktop hero: top of the page, week bar + tiles + first bots
-  await page.setViewport({ width: 1280, height: 1600, deviceScaleFactor: 2 });
-  await goto();
-  await page.screenshot({ path: path.join(outdir, "desktop.png"), type: "png" });
-  console.log("wrote desktop.png");
+  async function shot(name, target) {
+    const dest = path.join(outdir, name);
+    if (target === "page") {
+      await page.screenshot({ path: dest, type: "png" });
+    } else if (typeof target === "object" && target.clip) {
+      await page.screenshot({ path: dest, type: "png", clip: target.clip });
+    } else {
+      const el = typeof target === "string" ? await page.$(target) : target;
+      if (!el) throw new Error("missing element for " + name + ": " + target);
+      await el.screenshot({ path: dest, type: "png" });
+    }
+    console.log("wrote", name);
+  }
 
-  // Mobile
-  await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
-  await goto();
-  await page.screenshot({ path: path.join(outdir, "mobile.png"), type: "png" });
-  console.log("wrote mobile.png");
+  const desktop = { width: 1280, height: 1600, deviceScaleFactor: 2 };
 
-  // Tile popup (Chat with you) on a phone-sized frame
-  await page.click('[data-act="sheet"][data-id="chat"]');
+  // Desktop hero: header through the waiting box, no leftover accordion
+  await goto(desktop);
+  const heroClip = await page.evaluate(() => {
+    const wait = document.querySelector(".wait-box");
+    const app = document.querySelector("body");
+    const wr = wait.getBoundingClientRect();
+    const pad = 20;
+    return {
+      x: 0,
+      y: 0,
+      width: 1280,
+      height: Math.min(1600, Math.ceil(wr.bottom + pad)),
+    };
+  });
+  await shot("desktop.png", { clip: heroClip });
+
+  // Expanded Atlas row (details + open waiting item)
+  await page.click('[data-act="bot"][data-id="atlas"]');
+  await page.waitForSelector(".bot-card.open", { timeout: 5000 });
+  await pause(200);
+  await page.click('[data-act="wait-item"][data-id="atlas-o-0"]');
+  await page.waitForSelector(".wait-item.open", { timeout: 5000 });
+  await pause(250);
+  const atlas = await page.$(".bot-card.open");
+  // The open card is taller than the viewport. Scroll its top into view, then
+  // raise the viewport so an element screenshot can capture the whole card.
+  await atlas.evaluate((el) => el.scrollIntoView({ block: "start" }));
+  await pause(100);
+  const size = await atlas.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    return { width: Math.ceil(r.width), height: Math.ceil(r.height) };
+  });
+  await page.setViewport({
+    width: 1280,
+    height: Math.min(2400, size.height + 48),
+    deviceScaleFactor: 2,
+  });
+  await atlas.evaluate((el) => el.scrollIntoView({ block: "start" }));
+  await pause(200);
+  await shot("bot-expanded.png", atlas);
+
+  // Slide-up popup from the Top bot tile, with the week bar still in frame
+  await goto({ width: 1280, height: 1100, deviceScaleFactor: 2 });
+  await page.click('[data-act="sheet"][data-id="top"]');
   await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
-  await new Promise((r) => setTimeout(r, 350));
-  await page.screenshot({ path: path.join(outdir, "tile-popup.png"), type: "png" });
-  console.log("wrote tile-popup.png");
+  await pause(400);
+  await shot("tile-popup.png", "page");
 
-  // Close sheet, then heatmap on desktop
+  // Heatmap
   await page.click('[data-act="close-sheet"]');
-  await new Promise((r) => setTimeout(r, 300));
-  await page.setViewport({ width: 1280, height: 900, deviceScaleFactor: 2 });
-  await goto();
+  await pause(300);
+  await goto({ width: 1280, height: 900, deviceScaleFactor: 2 });
   const heat = await page.$("#heatmap");
   if (!heat) throw new Error("missing #heatmap");
-  await heat.screenshot({ path: path.join(outdir, "heatmap.png"), type: "png" });
-  console.log("wrote heatmap.png");
+  await heat.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await pause(150);
+  await shot("heatmap.png", heat);
+
+  // Usage trends accordion
+  await page.click('[data-act="acc"][data-id="trends"]');
+  await pause(300);
+  const trends = await page.evaluateHandle(() => {
+    const head = document.querySelector('[data-act="acc"][data-id="trends"]');
+    return head && head.closest(".acc");
+  });
+  const trendsEl = trends.asElement();
+  if (!trendsEl) throw new Error("missing trends accordion");
+  await trendsEl.evaluate((el) => el.scrollIntoView({ block: "center" }));
+  await pause(150);
+  await shot("trends.png", trendsEl);
+
+  // Mobile hero: complete tiles + sort pills, no mid-tile crop
+  const mobile = { width: 390, height: 1100, deviceScaleFactor: 3, isMobile: true, hasTouch: true };
+  await goto(mobile);
+  const mobileClip = await page.evaluate(() => {
+    const tools = document.querySelector(".row-tools");
+    const bottom = tools ? tools.getBoundingClientRect().bottom : 844;
+    return { x: 0, y: 0, width: 390, height: Math.min(1100, Math.ceil(bottom + 16)) };
+  });
+  await shot("mobile.png", { clip: mobileClip });
+
+  // Mobile slide-up of the same Top bot tile, on a standard phone frame
+  await goto({ width: 390, height: 844, deviceScaleFactor: 3, isMobile: true, hasTouch: true });
+  await page.click('[data-act="sheet"][data-id="top"]');
+  await page.waitForSelector('[role="dialog"]', { timeout: 5000 });
+  await pause(400);
+  await shot("mobile-popup.png", "page");
 
   await browser.close();
 })().catch((err) => {

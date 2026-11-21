@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Render docs screenshots of index.html (desktop, mobile, tile popup, heatmap).
+# Render docs screenshots of index.html (desktop, mobile, expanded bot, tile popup, heatmap, trends).
 # Requires Google Chrome or Chromium, and Node with puppeteer-core
 # (install puppeteer-core yourself; it is not a repo dependency).
 set -euo pipefail

@@ -70,7 +70,7 @@ Keep these unless the owner explicitly overrides one of them:
 ## How to edit the design
 
 - Prefer CSS and the render functions in `index.html`, and the matching components in `canvas/MissionControl.tsx`, so the two stay close.
-- After a visual change, open `index.html` in a browser (or run `scripts/screenshot.sh` if you have Chrome and puppeteer-core) and check desktop, a narrow phone width, a tile slide-up, and the heatmap.
+- After a visual change, open `index.html` in a browser (or run `scripts/screenshot.sh` if you have Chrome and puppeteer-core) and check desktop, a narrow phone width, a tile slide-up, an expanded bot row, the heatmap, and an open accordion section.
 - If you add or rename a data field, update `data/example.json`, the embedded block, the canvas constants, `data/SCHEMA.md`, and this file together.
 - Use `prompts/customize-prompt.md` when asking another bot to tweak a live Page so it does not overwrite data.
 

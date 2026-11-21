@@ -4,8 +4,8 @@ import { useGrokTheme, useState, useRef, ReactNode } from "grok/canvas";
 // Refresh routine: update the data blocks below, do not rewrite the layout.
 
 // ===== Snapshot data (the refresh routine updates these) =====
-const SNAPSHOT = "Sat Nov 21 · 1:00 PM ET";
-const WEEK = { used: 18.5, resets: "Tue Nov 24, 6:30 PM ET", elapsed: 54, resetAt: "2026-11-24T18:30:00-05:00", extraCredits: 0 };
+const SNAPSHOT = "Sat Nov 21 · 2:00 PM ET";
+const WEEK = { used: 49.0, resets: "Tue Nov 24, 6:30 PM ET", elapsed: 54, resetAt: "2026-11-24T18:30:00-05:00", extraCredits: 0 };
 const WEEK_MS = 7 * 24 * 3600 * 1000;
 function weekElapsed(): number {
   const end = new Date(WEEK.resetAt).getTime();
@@ -21,8 +21,8 @@ function projColors(p: number): [string, string, string] {
   if (p <= 100) return ["#f59e0b", "#f97316", "Tight"];
   return ["#ef4444", "#db2777", "Over by reset"];
 }
-const MIX = {"chat": 58, "routines": 31, "b2b": 11};
-const BUSIEST = {"day": "Wed Nov 18", "share": 16};
+const MIX = {"chat": 60, "routines": 31, "b2b": 9};
+const BUSIEST = {"day": "Wed Nov 18", "share": 17};
 
 type Open = { t: string; what: string; why: string; todo: string };
 type Item = { when: string; text: string };
@@ -30,17 +30,17 @@ type Rt = { name: string; sched: string; runs: string; s7: string; s30: string; 
 type Bot = { key: string; name: string; role: string; color: string; d7: number | null; d30: number | null; mix: [number, number, number] | null; trend: number[] | null; last: string; recent: Item[]; open: Open[]; routines: Rt[]; note?: string };
 
 const DAYS = ["Fri 13", "Sat 14", "Sun 15", "Mon 16", "Tue 17", "Wed 18", "Thu 19", "Fri 20"];
-const TYPE7 = {"chat": [3, 2, 4, 7, 6, 16, 8, 5], "routines": [3, 4, 3, 4, 4, 5, 4, 3], "b2b": [0.5, 1, 0, 2, 1, 1, 2, 0.5]};
-const DAYS30: number[] = [2, 1, 2, 3, 2, 2, 1, 2, 3, 2, 2, 4, 3, 2, 3, 2, 4, 3, 2, 3, 5, 3, 2, 4, 3, 8, 4, 3, 5, 3, 4];
+const TYPE7 = {"chat": [3, 4, 5, 8, 7, 17, 9, 7], "routines": [3, 4, 3, 4, 5, 5, 4, 3], "b2b": [1, 1, 0, 2, 1, 1, 2, 1]};
+const DAYS30: number[] = [2, 1, 2, 3, 2, 2, 1, 2, 3, 2, 2, 4, 3, 2, 3, 2, 4, 3, 2, 3, 5, 3, 3, 4, 4, 8, 5, 4, 6, 4, 5];
 const ACTIVITY: { days: Record<string, number[]>; hours: Record<string, number[]> | null } = {
   days: {
-      "atlas": [1, 1, 2, 3, 2, 4, 3, 2],
-      "scout": [0.5, 0, 1, 2, 1, 8, 2, 1],
-      "ledger": [1, 2, 1, 1, 2, 1, 2, 1],
-      "quill": [0.5, 0, 1, 2, 2, 3, 2, 0.5],
-      "pilot": [1, 1, 1, 1, 1, 1, 1, 1],
-      "nova": [0, 0, 0.5, 2, 1, 2, 2, 0],
-      "harbor": [0.5, 1, 0.5, 1, 0.5, 1, 0.5, 0.5],
+      "atlas": [2, 2, 3, 4, 3, 5, 4, 4],
+      "scout": [1, 1, 1, 2, 2, 8, 2, 2],
+      "ledger": [1, 2, 1, 2, 2, 1, 2, 2],
+      "quill": [1, 0, 1, 2, 2, 3, 2, 1],
+      "pilot": [1, 1, 1, 1, 1, 1, 2, 1],
+      "nova": [0, 0, 1, 2, 1, 2, 2, 0],
+      "harbor": [1, 1, 1, 1, 0, 1, 1, 1],
       "relay": [0.5, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5]
   },
   hours: null,
@@ -50,29 +50,30 @@ const D30L: Record<number, string> = { 0: "Oct 21", 10: "Oct 31", 20: "Nov 10", 
 const BOTS: Bot[] = [
   {
     key: "atlas", name: "Atlas", role: "Coordinates the team", color: "#6366f1",
-    d7: 24, d30: 22, mix: [14, 8, 2], trend: [1, 1, 2, 3, 2, 4, 3, 2],
-    last: "Rebuilt the weekly briefing around open items and usage",
-    recent: [{"when": "Fri 4:02 PM", "text": "Rebuilt the weekly briefing around open items and usage."}, {"when": "Fri 11:20 AM", "text": "Moved the mail router to four weekday checks."}, {"when": "Thu 6:15 PM", "text": "Trimmed two quiet routines down to weekdays only."}],
-    open: [{"t": "Approve the weekly briefing outline", "what": "A one-page outline of what the team will cover in Monday's briefing.", "why": "It stays in draft until you say it looks right.", "todo": "Read it in Atlas's chat and say send, or ask for changes."}],
+    d7: 27, d30: 26, mix: [16, 8, 3], trend: [2, 2, 3, 4, 3, 5, 4, 4],
+    last: "Wrapped Monday's briefing outline and sent it for a quick yes",
+    recent: [{"when": "Sat 11:20 AM", "text": "Wrapped Monday's briefing outline and sent it for a quick yes."}, {"when": "Fri 4:02 PM", "text": "Rebuilt the weekly briefing around open items and usage."}, {"when": "Fri 11:20 AM", "text": "Moved the mail router to four weekday checks."}, {"when": "Thu 6:15 PM", "text": "Trimmed two quiet routines down to weekdays only."}],
+    open: [{"t": "Approve Monday's briefing outline", "what": "A tight one-page outline of what the team will cover on Monday. The draft is ready.", "why": "Atlas is holding the send until you say it looks right.", "todo": "Open Atlas's chat, take a look, and say send — or ask for a tweak."}],
     routines: [
       { name: "Team morning digest", sched: "Weekdays about 8 AM", runs: "5", s7: "3%", s30: "4%", active: true },
       { name: "Usage dashboard refresh", sched: "Weekdays about 9 AM, 1 PM, 5 PM", runs: "15", s7: "2%", s30: "2%", active: true },
+      { name: "Midweek check-in", sched: "Wednesdays about 2 PM", runs: "1", s7: "1%", s30: "1%", active: true },
       { name: "Weekend quiet check", sched: "Paused", runs: "0", s7: "<1%", s30: "1%", active: false }
     ],
-  }
+  },
   {
     key: "scout", name: "Scout", role: "Research and briefings", color: "#6366f1",
-    d7: 18, d30: 14, mix: [15, 2, 1], trend: [0.5, 0, 1, 2, 1, 8, 2, 1],
-    last: "Turned four public notes into a one-page market brief",
-    recent: [{"when": "Fri 3:40 PM", "text": "Turned four public notes into a one-page market brief."}, {"when": "Thu 2:11 PM", "text": "Flagged two sources that need a second look."}],
-    open: [{"t": "Pick which sources to use in the market brief", "what": "The brief lists four public sources. Two of them still need a yes or no.", "why": "Scout will not finish the brief until you choose.", "todo": "Tell Scout which two sources to keep."}],
+    d7: 19, d30: 16, mix: [16, 2, 1], trend: [1, 1, 1, 2, 2, 8, 2, 2],
+    last: "Finished a one-page market brief from four public notes",
+    recent: [{"when": "Fri 3:40 PM", "text": "Finished a one-page market brief from four public notes."}, {"when": "Thu 2:11 PM", "text": "Flagged two sources that still need a yes or no."}],
+    open: [{"t": "Pick the two sources for the market brief", "what": "The brief is otherwise ready. Two of the four public sources still need a yes or no.", "why": "Scout will finish and send it once you choose.", "todo": "Tell Scout which two sources to keep."}],
     routines: [
       { name: "Overnight research sweep", sched: "Daily about 6 AM", runs: "7", s7: "2%", s30: "2%", active: true }
     ],
-  }
+  },
   {
     key: "ledger", name: "Ledger", role: "Money and invoices", color: "#6366f1",
-    d7: 12, d30: 11, mix: [4, 7, 1], trend: [1, 2, 1, 1, 2, 1, 2, 1],
+    d7: 13, d30: 12, mix: [4, 8, 1], trend: [1, 2, 1, 2, 2, 1, 2, 2],
     last: "Logged this week's invoices and marked two as paid",
     recent: [{"when": "Fri 10:05 AM", "text": "Logged this week's invoices and marked two as paid."}, {"when": "Wed 4:30 PM", "text": "Started the monthly spend summary."}],
     open: [],
@@ -80,49 +81,49 @@ const BOTS: Bot[] = [
       { name: "Invoice inbox check", sched: "Weekdays 10 AM and 3 PM", runs: "10", s7: "2%", s30: "3%", active: true },
       { name: "Old weekly recap", sched: "Paused", runs: "0", s7: "—", s30: "1%", active: false }
     ],
-  }
+  },
   {
     key: "quill", name: "Quill", role: "Writing and drafts", color: "#6366f1",
-    d7: 11, d30: 9, mix: [9, 1, 1], trend: [0.5, 0, 1, 2, 2, 3, 2, 0.5],
-    last: "Drafted a welcome note for review",
-    recent: [{"when": "Fri 2:18 PM", "text": "Drafted a welcome note for review."}, {"when": "Thu 9:40 AM", "text": "Tightened the project kickoff outline."}],
-    open: [{"t": "Review the welcome note before it goes out", "what": "A short welcome note, still on a draft card.", "why": "Nothing has been sent.", "todo": "Read it in Quill's chat. Say send, or ask for a rewrite."}],
+    d7: 12, d30: 11, mix: [10, 1, 1], trend: [1, 0, 1, 2, 2, 3, 2, 1],
+    last: "Drafted a short welcome note, ready for a quick look",
+    recent: [{"when": "Fri 2:18 PM", "text": "Drafted a short welcome note, ready for a quick look."}, {"when": "Thu 9:40 AM", "text": "Tightened the project kickoff outline."}],
+    open: [{"t": "Review the welcome note before it goes out", "what": "A short, warm welcome note, still on a draft card.", "why": "Nothing has been sent. One yes and it goes out.", "todo": "Read it in Quill's chat. Say send, or ask for a rewrite."}],
     routines: [],
-  }
+  },
   {
     key: "pilot", name: "Pilot", role: "Calendar and reminders", color: "#6366f1",
-    d7: 8, d30: 10, mix: [3, 5, 0], trend: [1, 1, 1, 1, 1, 1, 1, 1],
+    d7: 9, d30: 11, mix: [3, 6, 0], trend: [1, 1, 1, 1, 1, 1, 2, 1],
     last: "Added next Tuesday's review to the calendar",
     recent: [{"when": "Fri 1:12 PM", "text": "Added next Tuesday's review to the calendar."}, {"when": "Thu 8:50 AM", "text": "Caught a double-booked Friday and left a note."}],
     open: [],
     routines: [
       { name: "Calendar change watch", sched: "Weekdays every 2 hours, 8 AM to 6 PM", runs: "25", s7: "2%", s30: "3%", active: true }
     ],
-  }
+  },
   {
     key: "nova", name: "Nova", role: "Projects", color: "#6366f1",
-    d7: 7, d30: 6, mix: [5, 0, 2], trend: [0, 0, 0.5, 2, 1, 2, 2, 0],
+    d7: 8, d30: 8, mix: [5, 1, 2], trend: [0, 0, 1, 2, 1, 2, 2, 0],
     last: "Updated the project board after the planning call",
-    recent: [{"when": "Thu 5:22 PM", "text": "Updated the project board after the planning call."}, {"when": "Thu 4:05 PM", "text": "Opened a kickoff checklist."}],
-    open: [{"t": "Choose a date for the project kickoff", "what": "Nova has two suggested dates for a short kickoff call.", "why": "The checklist waits on a date before it can assign the first tasks.", "todo": "Pick a date in Nova's chat."}],
+    recent: [{"when": "Thu 5:22 PM", "text": "Updated the project board after the planning call."}, {"when": "Thu 4:05 PM", "text": "Opened a kickoff checklist with two suggested dates."}],
+    open: [{"t": "Choose a date for the project kickoff", "what": "Nova has two suggested dates for a short kickoff call. The checklist is otherwise ready.", "why": "The first tasks get assigned once a date is set.", "todo": "Pick a date in Nova's chat."}],
     routines: [],
-  }
+  },
   {
     key: "harbor", name: "Harbor", role: "Home life", color: "#6366f1",
-    d7: 5, d30: 8, mix: [3, 2, 0], trend: [0.5, 1, 0.5, 1, 0.5, 1, 0.5, 0.5],
+    d7: 7, d30: 9, mix: [4, 3, 0], trend: [1, 1, 1, 1, 0, 1, 1, 1],
     last: "Put the weekend packing list on the family board",
     recent: [{"when": "Fri 6:40 PM", "text": "Put the weekend packing list on the family board."}, {"when": "Fri 5:05 PM", "text": "Passed along a school reminder."}],
-    open: [{"t": "Confirm the school pickup change", "what": "A one-time pickup change next Wednesday is on the family board as a draft.", "why": "Harbor will not mark it confirmed until you say so.", "todo": "Confirm or correct the time in Harbor's chat."}],
+    open: [],
     routines: [
       { name: "School notice sweep", sched: "Weekdays about 5 PM", runs: "5", s7: "1%", s30: "2%", active: true },
       { name: "Weekend board preview", sched: "Paused", runs: "0", s7: "<1%", s30: "1%", active: false }
     ],
-  }
+  },
   {
     key: "relay", name: "Relay", role: "Mail and handoffs", color: "#6366f1",
-    d7: 3, d30: 4, mix: [1, 1, 1], trend: [0.5, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5],
+    d7: 5, d30: 7, mix: [2, 2, 1], trend: [0.5, 0.5, 0.5, 1, 0.5, 0.5, 1, 0.5],
     last: "Routed this morning's mail to the right bots",
-    recent: [{"when": "Fri 9:10 AM", "text": "Routed this morning's mail to the right bots."}, {"when": "Fri 3:10 PM", "text": "Afternoon pass found nothing new."}],
+    recent: [{"when": "Sat 9:10 AM", "text": "Routed this morning's mail to the right bots."}, {"when": "Fri 3:10 PM", "text": "Afternoon pass found nothing new."}],
     open: [],
     routines: [
       { name: "Mail router", sched: "Weekdays 9 AM, 12 PM, 3 PM, 6 PM", runs: "20", s7: "1%", s30: "2%", active: true }
@@ -337,11 +338,12 @@ function Spark(props: { values: number[]; color: string }) {
   const max = Math.max(...props.values, 1);
   const W = 320;
   const H = 110;
+  const head = 16;
   const bw = W / props.values.length;
   return (
     <svg width="100%" viewBox={"0 0 " + W + " " + (H + 18)} style={{ display: "block" }}>
       {props.values.map((v: number, i: number) => {
-        const h = Math.max(3, (v / max) * H);
+        const h = Math.max(3, (v / max) * (H - head));
         return (
           <g key={i}>
             <rect x={i * bw + 5} y={H - h} width={bw - 10} height={h} rx={5} fill={props.color} opacity={0.35 + (0.65 * v) / max} />
