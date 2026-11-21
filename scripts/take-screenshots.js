@@ -64,30 +64,30 @@ const pause = (ms) => new Promise((r) => setTimeout(r, ms));
   });
   await shot("desktop.png", { clip: heroClip });
 
-  // Expanded Atlas row (details + open waiting item)
+  // Expanded Atlas row in context: sort row, open card, next bot
+  await page.setViewport({ width: 1280, height: 2000, deviceScaleFactor: 2 });
+  await pause(200);
   await page.click('[data-act="bot"][data-id="atlas"]');
   await page.waitForSelector(".bot-card.open", { timeout: 5000 });
   await pause(200);
   await page.click('[data-act="wait-item"][data-id="atlas-o-0"]');
   await page.waitForSelector(".wait-item.open", { timeout: 5000 });
   await pause(250);
-  const atlas = await page.$(".bot-card.open");
-  // The open card is taller than the viewport. Scroll its top into view, then
-  // raise the viewport so an element screenshot can capture the whole card.
-  await atlas.evaluate((el) => el.scrollIntoView({ block: "start" }));
-  await pause(100);
-  const size = await atlas.evaluate((el) => {
-    const r = el.getBoundingClientRect();
-    return { width: Math.ceil(r.width), height: Math.ceil(r.height) };
+  await page.evaluate(() => {
+    const tools = document.querySelector(".row-tools");
+    if (tools) tools.scrollIntoView({ block: "start" });
   });
-  await page.setViewport({
-    width: 1280,
-    height: Math.min(2400, size.height + 48),
-    deviceScaleFactor: 2,
-  });
-  await atlas.evaluate((el) => el.scrollIntoView({ block: "start" }));
   await pause(200);
-  await shot("bot-expanded.png", atlas);
+  const botClip = await page.evaluate(() => {
+    const tools = document.querySelector(".row-tools");
+    const open = document.querySelector(".bot-card.open");
+    const cards = [...document.querySelectorAll(".bot-card")];
+    const next = cards[cards.indexOf(open) + 1];
+    const y = Math.max(0, (tools || open).getBoundingClientRect().top + window.scrollY - 8);
+    const bottom = (next || open).getBoundingClientRect().bottom + window.scrollY + 16;
+    return { x: 0, y, width: 1280, height: Math.ceil(bottom - y) };
+  });
+  await shot("bot-expanded.png", { clip: botClip });
 
   // Slide-up popup from the Top bot tile, with the week bar still in frame
   await goto({ width: 1280, height: 1100, deviceScaleFactor: 2 });

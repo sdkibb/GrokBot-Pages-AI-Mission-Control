@@ -54,7 +54,7 @@ Never paste a real usage report into this public repository.
 Keep these unless the owner explicitly overrides one of them:
 
 - This week tiles are visually neutral. Do not colour them red or green; they are just data, not a standing.
-- Red and amber are only for issues or elevation. The highest 7-day usage may be red. A share of 15% or more may be amber. A waiting count may be amber only if that bot has 4 or more items; otherwise it stays grey. The weekly bar and its chip follow the projection: under 80% On track (green), 80–100% Tight (amber), over 100% Over by reset (red).
+- Red and amber are only for issues or elevation. The highest 7-day usage may be red. A share of 15% or more may be amber. A waiting count may be amber only if that bot has 4 or more items; otherwise it stays grey. The used fill on the weekly bar is green/teal. The chip and the striped projection follow the projection: under 95% On track (green), 95–100% Near limit (amber), over 100% Over by reset (red).
 - One calm indigo accent. Teal, violet, coral, and periwinkle may be used as thin decorative edges only.
 - Waiting on you is collapsed by default.
 - Paused routines stay hidden until the user toggles them.

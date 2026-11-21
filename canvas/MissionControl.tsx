@@ -17,10 +17,11 @@ function projected(used: number, elapsed: number): number {
   return elapsed > 0 ? Math.round((used / elapsed) * 100) : used;
 }
 function projColors(p: number): [string, string, string] {
-  if (p < 80) return ["#10b981", "#06b6d4", "On track"];
-  if (p <= 100) return ["#f59e0b", "#f97316", "Tight"];
+  if (p < 95) return ["#10b981", "#06b6d4", "On track"];
+  if (p <= 100) return ["#f59e0b", "#f97316", "Near limit"];
   return ["#ef4444", "#db2777", "Over by reset"];
 }
+const USED_FILL: [string, string] = ["#10b981", "#2dd4bf"];
 const MIX = {"chat": 60, "routines": 31, "b2b": 9};
 const BUSIEST = {"day": "Wed Nov 18", "share": 17};
 
@@ -220,8 +221,10 @@ function WeekBar(props: { used: number; elapsed: number }) {
     const a = ((bounds[i] - start) / WEEK_MS) * 100;
     const b = ((bounds[i + 1] - start) / WEEK_MS) * 100;
     if (i > 0) lines.push(a);
+    // Skip leftover slivers (e.g. Tue 6:30 PM–midnight) so each day is labelled once, name + date.
+    if (b - a < 8) continue;
     const d = new Date(bounds[i] - OFF);
-    ticks.push({ pct: (a + b) / 2, top: b - a < 8 ? "" : DN[d.getUTCDay()], bot: String(d.getUTCDate()) });
+    ticks.push({ pct: (a + b) / 2, top: DN[d.getUTCDay()], bot: String(d.getUTCDate()) });
   }
   const e = props.elapsed;
   const u = Math.min(100, props.used);
@@ -241,7 +244,7 @@ function WeekBar(props: { used: number; elapsed: number }) {
         <div style={{ position: "absolute", left: e + "%", top: 0, transform: e > 85 ? "translateX(-100%)" : e < 15 ? "none" : "translateX(-50%)", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap" }}>Now</div>
         <div style={{ position: "relative", height: 18, borderRadius: 9999, background: "rgba(255,255,255,0.22)", overflow: "hidden" }}>
           {pr > u ? <div style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: pr + "%", borderRadius: 9999, background: "repeating-linear-gradient(135deg," + col[0] + "55 0 6px," + col[0] + "22 6px 12px)" }} /> : null}
-          <div style={{ position: "relative", width: u + "%", minWidth: 6, height: "100%", borderRadius: 9999, background: "linear-gradient(90deg," + col[0] + "," + col[1] + ")" }} />
+          <div style={{ position: "relative", width: u + "%", minWidth: 6, height: "100%", borderRadius: 9999, background: "linear-gradient(90deg," + USED_FILL[0] + "," + USED_FILL[1] + ")" }} />
           {lines.map((p: number, i: number) => <div key={i} style={{ position: "absolute", left: p + "%", top: 0, bottom: 0, width: 1, background: "rgba(255,255,255,0.3)" }} />)}
         </div>
         <div style={{ position: "absolute", left: "calc(" + e + "% - 1.5px)", top: 14, height: 26, width: 3, borderRadius: 2, background: "#fff", boxShadow: "0 0 6px rgba(0,0,0,0.4)" }} />
@@ -408,7 +411,7 @@ function BotBody(props: { b: Bot }) {
       ) : null}
       {showPaused ? paused.map((r: Rt, i: number) => <RtRow key={"p" + i} r={r} color={b.color} />) : null}
       {b.trend ? head("Usage by day, last 7 days") : null}
-      {b.trend ? <Spark values={b.trend} color={b.color} /> : null}
+      {b.trend ? <DayBars values={b.trend} color={b.color} highlightMax compact /> : null}
     </div>
   );
 }
@@ -508,17 +511,18 @@ const SHEETS: Record<string, { title: string; accent: string }> = {
   busiest: { title: "Busiest day", accent: PERI },
 };
 
-function DayBars(props: { values: number[]; color: string; highlightMax?: boolean }) {
+function DayBars(props: { values: number[]; color: string; highlightMax?: boolean; compact?: boolean }) {
   const theme = useGrokTheme();
   const max = Math.max(...props.values, 1);
   const mi = props.values.indexOf(Math.max(...props.values));
+  const barH = props.compact ? 56 : 80;
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: 120, padding: "0 2px" }}>
+    <div style={{ display: "flex", alignItems: "flex-end", gap: 6, height: props.compact ? 86 : 120, padding: "0 2px" }}>
       {props.values.map((v: number, i: number) => (
         <div key={i} style={{ flex: "1 1 0", minWidth: 0, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, height: "100%", justifyContent: "flex-end" }}>
-          <span style={{ fontSize: 10.5, color: theme.text.secondary }}>{v === 0 ? "0" : v < 1 ? "<1" : String(Math.round(v * 10) / 10)}</span>
-          <div style={{ width: "100%", maxWidth: 30, height: Math.max(3, (v / max) * 80), borderRadius: 6, background: props.color, opacity: props.highlightMax && i !== mi ? 0.45 : 1 }} />
-          <span style={{ fontSize: 10, color: theme.text.tertiary, whiteSpace: "nowrap" }}>{DAYS[i].split(" ")[0].slice(0, 2) + " " + DAYS[i].split(" ")[1]}</span>
+          <span style={{ fontSize: props.compact ? 10 : 10.5, color: theme.text.secondary }}>{v === 0 ? "0" : v < 1 ? "<1" : String(Math.round(v * 10) / 10)}</span>
+          <div style={{ width: "100%", maxWidth: 30, height: Math.max(3, (v / max) * barH), borderRadius: 6, background: props.color, opacity: props.highlightMax && i !== mi ? 0.45 : 1 }} />
+          <span style={{ fontSize: props.compact ? 9.5 : 10, color: theme.text.tertiary, whiteSpace: "nowrap" }}>{DAYS[i].split(" ")[0].slice(0, 2) + " " + DAYS[i].split(" ")[1]}</span>
         </div>
       ))}
     </div>

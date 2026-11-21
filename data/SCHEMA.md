@@ -60,7 +60,7 @@ All of it is example data. Real bot names, people, and usage numbers must never 
 ## Design rules that depend on this data
 
 - The weekly bar Now marker is computed from `week.resetAt` and the current time, so it moves by the hour. Day ticks are midnight in UTC−5.
-- The striped band is the linear projection of `week.used` at the current pace. The chip is On track (under 80%), Tight (80–100%), or Over by reset (over 100%).
+- The striped band is the linear projection of `week.used` at the current pace. The used fill is green/teal. The chip is On track (under 95%), Near limit (95–100%), or Over by reset (over 100%).
 - This week tiles stay visually neutral. Red and green are only for the projection chip and for usage elevation on a bot row (highest 7-day share is red; 15% or more is amber). A waiting count is grey, or amber only if that bot has 4 or more waiting items.
 - Waiting on you starts collapsed.
 - The accordion opens one section at a time.
