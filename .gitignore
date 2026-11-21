@@ -1,0 +1,14 @@
+# Real usage data must never be committed
+data/private*.json
+data/real*.json
+data/live*.json
+*.local.json
+.env
+.env.*
+.DS_Store
+node_modules/
+.idea/
+.vscode/
+*.log
+__pycache__/
+*.pyc

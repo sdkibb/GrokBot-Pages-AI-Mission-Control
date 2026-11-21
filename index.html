@@ -1,0 +1,1754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="AI Mission Control — a dashboard for a team of Grok Bots. This copy uses invented example data only.">
+  <title>AI Mission Control</title>
+  <style>
+:root {
+  --bg: #0b0d16;
+  --elevated: #15182a;
+  --base: #101225;
+  --text: #f1f5f9;
+  --text-2: #cbd5e1;
+  --text-3: #94a3b8;
+  --border: #2b2f48;
+  --border-subtle: #22253a;
+  --border-strong: #3f4464;
+  --accent: #6366f1;
+  --teal: #2dd4bf;
+  --violet: #a78bfa;
+  --coral: #fb7185;
+  --peri: #818cf8;
+  --chat: #4f46e5;
+  --routines: #818cf8;
+  --b2b: #c4b5fd;
+  --good: #10b981;
+  --warn: #f59e0b;
+  --bad: #ef4444;
+  --font: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg: #f4f5fb;
+    --elevated: #ffffff;
+    --base: #ffffff;
+    --text: #0f172a;
+    --text-2: #334155;
+    --text-3: #64748b;
+    --border: #e2e8f0;
+    --border-subtle: #eef2f7;
+    --border-strong: #cbd5e1;
+    color-scheme: light;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--text); font-family: var(--font); }
+body { min-height: 100vh; }
+button, [role="button"] { font-family: inherit; }
+#app { max-width: 1080px; margin: 0 auto; padding: 18px 14px 40px; display: flex; flex-direction: column; gap: 26px; overscroll-behavior-y: contain; }
+.example-banner {
+  align-self: flex-start;
+  font-size: 11px; font-weight: 750; letter-spacing: 0.08em; text-transform: uppercase;
+  color: #ccfbf1; background: linear-gradient(90deg, #0f766e, #4f46e5);
+  padding: 4px 10px; border-radius: 9999px;
+}
+.header { display: flex; align-items: center; gap: 12px; margin-bottom: -10px; }
+.header h1 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header .sub { font-size: 12px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.header .titles { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.icon-wrap { flex: none; filter: drop-shadow(0 4px 10px rgba(79,70,229,0.35)); }
+.refresh-btn {
+  width: 40px; height: 40px; flex: none; border-radius: 9999px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; background: color-mix(in srgb, var(--accent) 12%, transparent); border: 1px solid color-mix(in srgb, var(--accent) 33%, transparent);
+}
+.week {
+  background: linear-gradient(135deg, #3730a3, #4f46e5 60%, #6366f1); color: #fff;
+  border-radius: 18px; padding: 14px 16px 12px; box-shadow: 0 6px 18px #4f46e533;
+}
+.week-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.week-kicker { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; opacity: 0.9; }
+.week-chip { font-size: 12.5px; font-weight: 700; padding: 3px 10px; border-radius: 9999px; color: #fff; }
+.week-stats { display: flex; gap: 16px; flex-wrap: wrap; margin: 6px 0 12px; font-size: 13.5px; }
+.week-stats b { font-size: 20px; }
+.week-track { position: relative; padding: 18px 0 0; }
+.week-now-label { position: absolute; top: 0; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.week-rail { position: relative; height: 18px; border-radius: 9999px; background: rgba(255,255,255,0.22); overflow: hidden; }
+.week-proj { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 9999px; }
+.week-used { position: relative; min-width: 6px; height: 100%; border-radius: 9999px; }
+.week-line { position: absolute; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,0.3); }
+.week-marker { position: absolute; top: 14px; height: 26px; width: 3px; margin-left: -1.5px; border-radius: 2px; background: #fff; box-shadow: 0 0 6px rgba(0,0,0,0.4); }
+.week-axis { position: relative; height: 30px; margin-top: 6px; }
+.week-tick { position: absolute; transform: translateX(-50%); text-align: center; line-height: 1.15; }
+.week-tick .d { font-size: 10px; opacity: 0.8; }
+.week-tick .n { font-size: 11.5px; font-weight: 700; }
+.week-foot { font-size: 12px; opacity: 0.85; margin-top: 2px; }
+.sec-title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin: 4px 2px 10px; }
+.sec-bar { width: 4px; height: 18px; border-radius: 2px; background: linear-gradient(180deg, var(--accent), var(--teal)); align-self: center; }
+.sec-title h2 { margin: 0; font-size: 19px; font-weight: 750; }
+.sec-title .sub { font-size: 13px; color: var(--text-3); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.tile {
+  border-radius: 18px; padding: 14px 16px; min-height: 104px;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 6px;
+  cursor: pointer; position: relative; color: var(--text);
+}
+.tile .lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.tile .val { font-size: 30px; font-weight: 800; line-height: 1.05; }
+.tile .sub { font-size: 12.5px; opacity: 0.92; line-height: 1.3; }
+.tile .chev { position: absolute; top: 12px; right: 14px; font-size: 16px; color: var(--text-3); }
+.row-tools { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
+.pill {
+  font-size: 13px; font-weight: 650; padding: 8px 14px; border-radius: 9999px; cursor: pointer;
+  border: 1px solid var(--border); background: transparent; color: var(--text-2); min-height: 36px;
+}
+.pill.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-2); margin-left: auto; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; margin-right: 6px; vertical-align: -1px; }
+.bot-list { display: flex; flex-direction: column; gap: 10px; }
+.bot-card { border-radius: 18px; overflow: hidden; background: var(--elevated); border: 1px solid var(--border); }
+.bot-card.open { box-shadow: 0 8px 24px color-mix(in srgb, var(--accent) 20%, transparent); }
+.bot-head {
+  display: flex; align-items: center; gap: 12px; padding: 12px 14px; min-height: 70px; cursor: pointer;
+  border-left: 5px solid var(--ring, var(--accent));
+}
+.bot-main { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.bot-name-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.bot-name { font-size: 16.5px; font-weight: 750; }
+.chip { font-size: 12px; font-weight: 650; padding: 3px 9px; border-radius: 9999px; }
+.bot-last { font-size: 13px; line-height: 1.35; color: var(--text-2); }
+.mix { display: flex; height: 8px; min-width: 14px; border-radius: 6px; overflow: hidden; }
+.mix > span { height: 100%; }
+.bot-pct { flex: none; display: flex; align-items: center; gap: 8px; }
+.bot-pct .n { font-size: 21px; font-weight: 800; text-align: right; }
+.bot-pct .l { font-size: 11px; color: var(--text-3); text-align: right; }
+.chev { font-size: 22px; color: var(--text-3); transition: transform 0.15s; }
+.chev.on { transform: rotate(90deg); }
+.face {
+  border-radius: 9999px; flex: none; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 700; overflow: hidden;
+  background: linear-gradient(135deg, var(--accent), #0891b2);
+}
+.bot-body { padding: 4px 14px 16px; display: flex; flex-direction: column; gap: 12px; }
+.role { font-size: 13px; color: var(--text-2); }
+.mini-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.mini {
+  flex: 1 1 90px; border-radius: 14px; padding: 10px 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--accent) 15%, transparent), color-mix(in srgb, var(--accent) 5%, transparent));
+  border: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+}
+.mini .l { font-size: 11.5px; font-weight: 650; color: var(--text-2); text-transform: uppercase; letter-spacing: 0.04em; }
+.mini .v { font-size: 20px; font-weight: 800; }
+.mix-legend { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12.5px; color: var(--text-2); }
+.head-l { font-size: 13px; font-weight: 750; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 6px; }
+.recent { display: flex; flex-direction: column; gap: 10px; }
+.recent-row { display: flex; gap: 10px; align-items: flex-start; }
+.dot { width: 8px; height: 8px; margin-top: 6px; border-radius: 9999px; background: var(--accent); flex: none; }
+.recent-row p { margin: 0; font-size: 13.5px; line-height: 1.45; }
+.recent-row .when { color: var(--text-3); font-weight: 600; margin-right: 6px; }
+.linkish { font-size: 13px; font-weight: 650; color: var(--accent); cursor: pointer; padding: 8px 2px; }
+.wait-box { border-radius: 20px; padding: 3px; background: linear-gradient(135deg, #4f46e5, #a78bfa 60%, #fb7185); box-shadow: 0 8px 24px #4f46e526; }
+.wait-inner { border-radius: 17px; background: var(--elevated); overflow: hidden; }
+.wait-head {
+  padding: 14px 16px; background: linear-gradient(120deg, #4f46e5, #6366f1); color: #fff;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+}
+.wait-head .count { font-size: 30px; font-weight: 850; line-height: 1; }
+.wait-head .t { font-size: 17px; font-weight: 750; }
+.wait-head .s { font-size: 12.5px; opacity: 0.92; }
+.wait-list { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.wait-item { border-radius: 14px; border: 1px solid var(--border); background: var(--base); overflow: hidden; }
+.wait-item.open { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 7%, var(--base)); }
+.wait-item-head { display: flex; align-items: center; gap: 10px; padding: 12px 14px; min-height: 48px; cursor: pointer; }
+.wait-dot { width: 10px; height: 10px; border-radius: 9999px; background: var(--accent); flex: none; }
+.wait-item-head .t { flex: 1 1 0; min-width: 0; font-size: 14.5px; font-weight: 600; line-height: 1.35; }
+.wait-lead { color: var(--accent); margin-right: 6px; }
+.wait-detail { padding: 0 14px 14px 34px; display: flex; flex-direction: column; gap: 8px; }
+.wait-detail p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--text-2); }
+.wait-detail b { color: var(--text); }
+.rt { display: flex; gap: 10px; padding: 10px 4px; border-bottom: 1px solid var(--border-subtle); align-items: flex-start; }
+.rt.paused { opacity: 0.75; }
+.rt-bar { width: 4px; align-self: stretch; border-radius: 4px; background: var(--accent); flex: none; }
+.rt.paused .rt-bar { background: var(--border-strong); }
+.rt-body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.rt-name { font-size: 14.5px; font-weight: 650; }
+.rt-lead { font-size: 12px; font-weight: 700; color: var(--accent); margin-right: 8px; }
+.rt-sched { font-size: 13px; color: var(--text-2); line-height: 1.4; }
+.rt-side { flex: none; text-align: right; display: flex; flex-direction: column; gap: 2px; }
+.rt-side .s7 { font-size: 15px; font-weight: 750; }
+.rt-side .runs { font-size: 11.5px; color: var(--text-3); }
+.panel { background: var(--elevated); border: 1px solid var(--border); border-radius: 20px; padding: 16px; }
+.heat-tools { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+.heat-empty { font-size: 13.5px; line-height: 1.5; color: var(--text-2); padding: 18px 4px; }
+.heat-grid { overflow-x: auto; }
+.heat-table { display: grid; gap: 4px; align-items: center; }
+.heat-name { font-size: 12.5px; font-weight: 600; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.heat-cell { height: 22px; border-radius: 5px; }
+.heat-col { font-size: 10.5px; color: var(--text-3); text-align: center; }
+.heat-foot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; font-size: 12.5px; color: var(--text-3); }
+.heat-scale { display: flex; align-items: center; gap: 4px; font-size: 11.5px; }
+.heat-scale i { width: 12px; height: 12px; border-radius: 3px; background: var(--accent); display: inline-block; }
+.acc { border-radius: 18px; overflow: hidden; border: 1px solid var(--border); background: var(--elevated); }
+.acc-head {
+  display: flex; align-items: center; gap: 12px; padding: 14px 16px; min-height: 60px; cursor: pointer; color: #fff;
+  border-left: 5px solid var(--acc-accent, var(--violet));
+}
+.acc-head .t { font-size: 16.5px; font-weight: 750; }
+.acc-head .s { font-size: 12.5px; opacity: 0.9; }
+.acc-body { padding: 14px; }
+.trend-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+.trend-box { background: var(--elevated); border: 1px solid var(--border); border-radius: 20px; padding: 14px; }
+.trend-box h3 { margin: 0 0 8px; font-size: 14px; font-weight: 700; }
+.trend-note { font-size: 13px; color: var(--text-2); margin-top: 10px; }
+.credits { margin-top: 14px; border-top: 3px solid var(--teal); }
+.credits p { font-size: 13.5px; line-height: 1.5; margin: 0; }
+.credits-stats { display: flex; gap: 16px; flex-wrap: wrap; font-size: 13.5px; color: var(--text-2); margin-bottom: 8px; }
+.gap { display: flex; gap: 10px; font-size: 13.5px; line-height: 1.45; color: var(--text-2); margin: 0 0 8px; }
+.gap i { width: 6px; height: 6px; margin-top: 7px; border-radius: 9999px; background: #64748b; flex: none; }
+.spark, .chart { width: 100%; display: block; }
+.daybars { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding: 0 2px; }
+.daybars .col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+.daybars .v { font-size: 10.5px; color: var(--text-2); }
+.daybars .bar { width: 100%; max-width: 30px; border-radius: 6px; }
+.daybars .d { font-size: 10px; color: var(--text-3); white-space: nowrap; }
+.rank { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.rank-body { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.rank-top { display: flex; justify-content: space-between; gap: 8px; }
+.rank-top .l { font-size: 14px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rank-top .v { font-size: 14px; font-weight: 750; flex: none; }
+.rank-sub { font-size: 12px; color: var(--text-3); }
+.rank-track { height: 6px; border-radius: 4px; background: var(--border-subtle); overflow: hidden; }
+.rank-track > div { height: 100%; border-radius: 4px; min-width: 4px; }
+.sheet-root { position: fixed; inset: 0; z-index: 60; }
+.sheet-bg { position: absolute; inset: 0; background: rgba(15,12,40,0.55); animation: mcfade 0.24s ease; }
+.sheet-bg.closing { opacity: 0; transition: opacity 0.24s; }
+.sheet {
+  position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 640px; max-height: 78vh;
+  display: flex; flex-direction: column; background: var(--elevated); color: var(--text);
+  border-radius: 22px 22px 0 0; box-shadow: 0 -12px 40px rgba(0,0,0,0.35);
+  animation: mcup 0.3s cubic-bezier(.2,.8,.2,1);
+}
+.sheet.closing { transform: translateY(100%); transition: transform 0.24s cubic-bezier(.2,.8,.2,1); }
+.sheet-handle { padding: 8px 16px 6px; flex: none; touch-action: none; }
+.grab { width: 40px; height: 5px; border-radius: 9999px; background: var(--border-strong); margin: 0 auto 10px; }
+.sheet-title { display: flex; align-items: center; gap: 10px; }
+.sheet-title h3 { margin: 0; flex: 1 1 0; font-size: 18px; font-weight: 800; }
+.close-x {
+  width: 34px; height: 34px; border-radius: 9999px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; background: var(--border-subtle); color: var(--text-2); font-size: 18px; font-weight: 700; border: 0;
+}
+.sheet-body { overflow-y: auto; padding: 0 16px 28px; -webkit-overflow-scrolling: touch; }
+.sheet-h { font-size: 12.5px; font-weight: 750; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-2); margin: 14px 0 6px; }
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); z-index: 50; max-width: 90%;
+  background: #312e81; color: #fff; font-size: 13px; font-weight: 600; padding: 10px 16px; border-radius: 9999px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.25); text-align: center;
+}
+.pull { display: flex; align-items: center; justify-content: center; overflow: hidden; margin-bottom: -26px; }
+.pull-inner { display: flex; align-items: center; gap: 10px; }
+.spinner {
+  width: 26px; height: 26px; border-radius: 9999px;
+  background: conic-gradient(#4f46e5, #818cf8, #c4b5fd, #4f46e5);
+  -webkit-mask: radial-gradient(circle, transparent 7px, #000 8px);
+  mask: radial-gradient(circle, transparent 7px, #000 8px);
+}
+.pull-lbl { font-size: 12.5px; font-weight: 650; color: var(--text-2); }
+.spin { animation: mcspin 0.8s linear infinite; }
+@keyframes mcspin { to { transform: rotate(360deg); } }
+@keyframes mcup { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes mcfade { from { opacity: 0; } to { opacity: 1; } }
+@media (max-width: 520px) {
+  .tiles { grid-template-columns: repeat(2, 1fr); }
+  .legend { margin-left: 0; width: 100%; }
+}
+
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script type="application/json" id="amc-data">
+{
+  "meta": {
+    "example": true,
+    "label": "Example data",
+    "snapshot": "Sat Nov 21 \u00b7 1:00 PM ET",
+    "note": "Invented bots and numbers for the public template. Do not use as real usage."
+  },
+  "week": {
+    "used": 18.5,
+    "resets": "Tue Nov 24, 6:30 PM ET",
+    "elapsed": 54,
+    "resetAt": "2026-11-24T18:30:00-05:00",
+    "extraCredits": 0
+  },
+  "mix": {
+    "chat": 58,
+    "routines": 31,
+    "b2b": 11
+  },
+  "busiest": {
+    "day": "Wed Nov 18",
+    "share": 16
+  },
+  "days": [
+    "Fri 13",
+    "Sat 14",
+    "Sun 15",
+    "Mon 16",
+    "Tue 17",
+    "Wed 18",
+    "Thu 19",
+    "Fri 20"
+  ],
+  "type7": {
+    "chat": [
+      3,
+      2,
+      4,
+      7,
+      6,
+      16,
+      8,
+      5
+    ],
+    "routines": [
+      3,
+      4,
+      3,
+      4,
+      4,
+      5,
+      4,
+      3
+    ],
+    "b2b": [
+      0.5,
+      1,
+      0,
+      2,
+      1,
+      1,
+      2,
+      0.5
+    ]
+  },
+  "days30": [
+    2,
+    1,
+    2,
+    3,
+    2,
+    2,
+    1,
+    2,
+    3,
+    2,
+    2,
+    4,
+    3,
+    2,
+    3,
+    2,
+    4,
+    3,
+    2,
+    3,
+    5,
+    3,
+    2,
+    4,
+    3,
+    8,
+    4,
+    3,
+    5,
+    3,
+    4
+  ],
+  "days30Labels": {
+    "0": "Oct 21",
+    "10": "Oct 31",
+    "20": "Nov 10",
+    "30": "Nov 20"
+  },
+  "activity": {
+    "days": {
+      "atlas": [
+        1,
+        1,
+        2,
+        3,
+        2,
+        4,
+        3,
+        2
+      ],
+      "scout": [
+        0.5,
+        0,
+        1,
+        2,
+        1,
+        8,
+        2,
+        1
+      ],
+      "ledger": [
+        1,
+        2,
+        1,
+        1,
+        2,
+        1,
+        2,
+        1
+      ],
+      "quill": [
+        0.5,
+        0,
+        1,
+        2,
+        2,
+        3,
+        2,
+        0.5
+      ],
+      "pilot": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "nova": [
+        0,
+        0,
+        0.5,
+        2,
+        1,
+        2,
+        2,
+        0
+      ],
+      "harbor": [
+        0.5,
+        1,
+        0.5,
+        1,
+        0.5,
+        1,
+        0.5,
+        0.5
+      ],
+      "relay": [
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        1,
+        0.5
+      ]
+    },
+    "hours": null
+  },
+  "bots": [
+    {
+      "key": "atlas",
+      "name": "Atlas",
+      "role": "Coordinates the team",
+      "color": "#6366f1",
+      "d7": 24,
+      "d30": 22,
+      "mix": [
+        14,
+        8,
+        2
+      ],
+      "trend": [
+        1,
+        1,
+        2,
+        3,
+        2,
+        4,
+        3,
+        2
+      ],
+      "last": "Rebuilt the weekly briefing around open items and usage",
+      "recent": [
+        {
+          "when": "Fri 4:02 PM",
+          "text": "Rebuilt the weekly briefing around open items and usage."
+        },
+        {
+          "when": "Fri 11:20 AM",
+          "text": "Moved the mail router to four weekday checks."
+        },
+        {
+          "when": "Thu 6:15 PM",
+          "text": "Trimmed two quiet routines down to weekdays only."
+        }
+      ],
+      "open": [
+        {
+          "t": "Approve the weekly briefing outline",
+          "what": "A one-page outline of what the team will cover in Monday's briefing.",
+          "why": "It stays in draft until you say it looks right.",
+          "todo": "Read it in Atlas's chat and say send, or ask for changes."
+        }
+      ],
+      "routines": [
+        {
+          "name": "Team morning digest",
+          "sched": "Weekdays about 8 AM",
+          "runs": "5",
+          "s7": "3%",
+          "s30": "4%",
+          "active": true
+        },
+        {
+          "name": "Usage dashboard refresh",
+          "sched": "Weekdays about 9 AM, 1 PM, 5 PM",
+          "runs": "15",
+          "s7": "2%",
+          "s30": "2%",
+          "active": true
+        },
+        {
+          "name": "Weekend quiet check",
+          "sched": "Paused",
+          "runs": "0",
+          "s7": "<1%",
+          "s30": "1%",
+          "active": false
+        }
+      ]
+    },
+    {
+      "key": "scout",
+      "name": "Scout",
+      "role": "Research and briefings",
+      "color": "#6366f1",
+      "d7": 18,
+      "d30": 14,
+      "mix": [
+        15,
+        2,
+        1
+      ],
+      "trend": [
+        0.5,
+        0,
+        1,
+        2,
+        1,
+        8,
+        2,
+        1
+      ],
+      "last": "Turned four public notes into a one-page market brief",
+      "recent": [
+        {
+          "when": "Fri 3:40 PM",
+          "text": "Turned four public notes into a one-page market brief."
+        },
+        {
+          "when": "Thu 2:11 PM",
+          "text": "Flagged two sources that need a second look."
+        }
+      ],
+      "open": [
+        {
+          "t": "Pick which sources to use in the market brief",
+          "what": "The brief lists four public sources. Two of them still need a yes or no.",
+          "why": "Scout will not finish the brief until you choose.",
+          "todo": "Tell Scout which two sources to keep."
+        }
+      ],
+      "routines": [
+        {
+          "name": "Overnight research sweep",
+          "sched": "Daily about 6 AM",
+          "runs": "7",
+          "s7": "2%",
+          "s30": "2%",
+          "active": true
+        }
+      ]
+    },
+    {
+      "key": "ledger",
+      "name": "Ledger",
+      "role": "Money and invoices",
+      "color": "#6366f1",
+      "d7": 12,
+      "d30": 11,
+      "mix": [
+        4,
+        7,
+        1
+      ],
+      "trend": [
+        1,
+        2,
+        1,
+        1,
+        2,
+        1,
+        2,
+        1
+      ],
+      "last": "Logged this week's invoices and marked two as paid",
+      "recent": [
+        {
+          "when": "Fri 10:05 AM",
+          "text": "Logged this week's invoices and marked two as paid."
+        },
+        {
+          "when": "Wed 4:30 PM",
+          "text": "Started the monthly spend summary."
+        }
+      ],
+      "open": [],
+      "routines": [
+        {
+          "name": "Invoice inbox check",
+          "sched": "Weekdays 10 AM and 3 PM",
+          "runs": "10",
+          "s7": "2%",
+          "s30": "3%",
+          "active": true
+        },
+        {
+          "name": "Old weekly recap",
+          "sched": "Paused",
+          "runs": "0",
+          "s7": "\u2014",
+          "s30": "1%",
+          "active": false
+        }
+      ]
+    },
+    {
+      "key": "quill",
+      "name": "Quill",
+      "role": "Writing and drafts",
+      "color": "#6366f1",
+      "d7": 11,
+      "d30": 9,
+      "mix": [
+        9,
+        1,
+        1
+      ],
+      "trend": [
+        0.5,
+        0,
+        1,
+        2,
+        2,
+        3,
+        2,
+        0.5
+      ],
+      "last": "Drafted a welcome note for review",
+      "recent": [
+        {
+          "when": "Fri 2:18 PM",
+          "text": "Drafted a welcome note for review."
+        },
+        {
+          "when": "Thu 9:40 AM",
+          "text": "Tightened the project kickoff outline."
+        }
+      ],
+      "open": [
+        {
+          "t": "Review the welcome note before it goes out",
+          "what": "A short welcome note, still on a draft card.",
+          "why": "Nothing has been sent.",
+          "todo": "Read it in Quill's chat. Say send, or ask for a rewrite."
+        }
+      ],
+      "routines": []
+    },
+    {
+      "key": "pilot",
+      "name": "Pilot",
+      "role": "Calendar and reminders",
+      "color": "#6366f1",
+      "d7": 8,
+      "d30": 10,
+      "mix": [
+        3,
+        5,
+        0
+      ],
+      "trend": [
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "last": "Added next Tuesday's review to the calendar",
+      "recent": [
+        {
+          "when": "Fri 1:12 PM",
+          "text": "Added next Tuesday's review to the calendar."
+        },
+        {
+          "when": "Thu 8:50 AM",
+          "text": "Caught a double-booked Friday and left a note."
+        }
+      ],
+      "open": [],
+      "routines": [
+        {
+          "name": "Calendar change watch",
+          "sched": "Weekdays every 2 hours, 8 AM to 6 PM",
+          "runs": "25",
+          "s7": "2%",
+          "s30": "3%",
+          "active": true
+        }
+      ]
+    },
+    {
+      "key": "nova",
+      "name": "Nova",
+      "role": "Projects",
+      "color": "#6366f1",
+      "d7": 7,
+      "d30": 6,
+      "mix": [
+        5,
+        0,
+        2
+      ],
+      "trend": [
+        0,
+        0,
+        0.5,
+        2,
+        1,
+        2,
+        2,
+        0
+      ],
+      "last": "Updated the project board after the planning call",
+      "recent": [
+        {
+          "when": "Thu 5:22 PM",
+          "text": "Updated the project board after the planning call."
+        },
+        {
+          "when": "Thu 4:05 PM",
+          "text": "Opened a kickoff checklist."
+        }
+      ],
+      "open": [
+        {
+          "t": "Choose a date for the project kickoff",
+          "what": "Nova has two suggested dates for a short kickoff call.",
+          "why": "The checklist waits on a date before it can assign the first tasks.",
+          "todo": "Pick a date in Nova's chat."
+        }
+      ],
+      "routines": []
+    },
+    {
+      "key": "harbor",
+      "name": "Harbor",
+      "role": "Home life",
+      "color": "#6366f1",
+      "d7": 5,
+      "d30": 8,
+      "mix": [
+        3,
+        2,
+        0
+      ],
+      "trend": [
+        0.5,
+        1,
+        0.5,
+        1,
+        0.5,
+        1,
+        0.5,
+        0.5
+      ],
+      "last": "Put the weekend packing list on the family board",
+      "recent": [
+        {
+          "when": "Fri 6:40 PM",
+          "text": "Put the weekend packing list on the family board."
+        },
+        {
+          "when": "Fri 5:05 PM",
+          "text": "Passed along a school reminder."
+        }
+      ],
+      "open": [
+        {
+          "t": "Confirm the school pickup change",
+          "what": "A one-time pickup change next Wednesday is on the family board as a draft.",
+          "why": "Harbor will not mark it confirmed until you say so.",
+          "todo": "Confirm or correct the time in Harbor's chat."
+        }
+      ],
+      "routines": [
+        {
+          "name": "School notice sweep",
+          "sched": "Weekdays about 5 PM",
+          "runs": "5",
+          "s7": "1%",
+          "s30": "2%",
+          "active": true
+        },
+        {
+          "name": "Weekend board preview",
+          "sched": "Paused",
+          "runs": "0",
+          "s7": "<1%",
+          "s30": "1%",
+          "active": false
+        }
+      ]
+    },
+    {
+      "key": "relay",
+      "name": "Relay",
+      "role": "Mail and handoffs",
+      "color": "#6366f1",
+      "d7": 3,
+      "d30": 4,
+      "mix": [
+        1,
+        1,
+        1
+      ],
+      "trend": [
+        0.5,
+        0.5,
+        0.5,
+        1,
+        0.5,
+        0.5,
+        1,
+        0.5
+      ],
+      "last": "Routed this morning's mail to the right bots",
+      "recent": [
+        {
+          "when": "Fri 9:10 AM",
+          "text": "Routed this morning's mail to the right bots."
+        },
+        {
+          "when": "Fri 3:10 PM",
+          "text": "Afternoon pass found nothing new."
+        }
+      ],
+      "open": [],
+      "routines": [
+        {
+          "name": "Mail router",
+          "sched": "Weekdays 9 AM, 12 PM, 3 PM, 6 PM",
+          "runs": "20",
+          "s7": "1%",
+          "s30": "2%",
+          "active": true
+        }
+      ]
+    }
+  ],
+  "dismissed": [
+    {
+      "bot": "quill",
+      "match": "old draft",
+      "title": "Old draft sitting in review",
+      "date": "2026-11-18"
+    },
+    {
+      "bot": "ledger",
+      "match": "receipt",
+      "title": "Missing receipt from last week",
+      "date": "2026-11-18"
+    }
+  ],
+  "gaps": [
+    "No token or dollar counts: the usage report gives shares of usage and the weekly percent only.",
+    "The weekly limit may be shared with other apps; this page cannot break that out.",
+    "Bots with no usage in a period show 0%; shares under 1% show as <1%.",
+    "The Activity by bot heatmap is by day only until an hourly source exists.",
+    "Recent work and waiting items come from each bot's latest messages, so older items may be missing.",
+    "Days in the charts are UTC days."
+  ]
+}
+  </script>
+  <script>
+(function () {
+  const DATA = JSON.parse(document.getElementById("amc-data").textContent);
+  const ACCENT = "#6366f1";
+  const TEAL = "#2dd4bf";
+  const VIOLET = "#a78bfa";
+  const CORAL = "#fb7185";
+  const PERI = "#818cf8";
+  const C = { chat: "#4f46e5", routines: "#818cf8", b2b: "#c4b5fd" };
+  const RING = { atlas: CORAL, scout: TEAL, ledger: VIOLET, quill: PERI, pilot: TEAL, nova: VIOLET, harbor: CORAL, relay: TEAL };
+  const TILE_ACCENT = { "Chat with you": TEAL, Routines: VIOLET, "Bot-to-bot": CORAL, "Top bot": VIOLET, "Busiest day": PERI };
+  const ACC_ACCENT = { routines: TEAL, trends: VIOLET, gaps: CORAL };
+  const ACC_FROM = { routines: "#4f46e5", trends: "#4338ca", gaps: "#64748b" };
+  const ACC_TO = { routines: "#6366f1", trends: "#6366f1", gaps: "#475569" };
+  const SHEETS = {
+    chat: { title: "Chat with you", accent: TEAL },
+    routines: { title: "Routines", accent: VIOLET },
+    b2b: { title: "Bot-to-bot", accent: CORAL },
+    top: { title: "Top bot", accent: VIOLET },
+    busiest: { title: "Busiest day", accent: PERI },
+  };
+  const WEEK_MS = 7 * 24 * 3600 * 1000;
+
+  // Apply dismissed items, same rule as the Grok Bot Page
+  const bots = DATA.bots.map((b) => {
+    const open = (b.open || []).filter(
+      (o) => !DATA.dismissed.some((d) => d.bot === b.key && o.t.toLowerCase().indexOf(d.match) >= 0)
+    );
+    return Object.assign({}, b, { open, color: ACCENT });
+  });
+  const DAYS = DATA.days;
+  const TYPE7 = DATA.type7;
+  const WEEK = DATA.week;
+  const MIX = DATA.mix;
+  const BUSIEST = DATA.busiest;
+  const ACTIVITY = DATA.activity;
+  const DAYS30 = DATA.days30;
+  const D30L = DATA.days30Labels;
+  const GAPS = DATA.gaps;
+  const SNAPSHOT = DATA.meta.snapshot;
+
+  const state = {
+    openBot: null,
+    sec: null,
+    showPausedAll: false,
+    pausedBot: {},
+    sortBy: "usage",
+    waitOpen: false,
+    heatMode: "day",
+    openWait: null,
+    sheet: null,
+    closing: false,
+    drag: 0,
+    pull: 0,
+    refreshing: false,
+    toast: null,
+  };
+  let startY = null;
+  let sheetY = null;
+  const PULL_AT = 70;
+  const root = document.getElementById("app");
+
+  function esc(s) {
+    return String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#39;",
+    }[c]));
+  }
+  function weekElapsed() {
+    const end = new Date(WEEK.resetAt).getTime();
+    if (isNaN(end)) return WEEK.elapsed;
+    const pct = ((Date.now() - (end - WEEK_MS)) / WEEK_MS) * 100;
+    return Math.max(0, Math.min(100, pct));
+  }
+  function projected(used, elapsed) {
+    return elapsed > 0 ? Math.round((used / elapsed) * 100) : used;
+  }
+  function projColors(p) {
+    if (p < 80) return ["#10b981", "#06b6d4", "On track"];
+    if (p <= 100) return ["#f59e0b", "#f97316", "Tight"];
+    return ["#ef4444", "#db2777", "Over by reset"];
+  }
+  function shareNum(s) {
+    if (s === "—" || s === "") return -1;
+    if (String(s).indexOf("<") === 0) return 0.5;
+    const n = parseFloat(s);
+    return isNaN(n) ? -1 : n;
+  }
+  function fmtShare(n) {
+    return n < 1 && n > 0 ? "<1%" : n + "%";
+  }
+  function fmtVal(v) {
+    if (v === 0) return "0";
+    if (v < 1) return "<1";
+    return String(Math.round(v * 10) / 10);
+  }
+  const MAX_D7 = Math.max.apply(null, bots.map((b) => b.d7 || 0));
+  function heat(d7) {
+    if (d7 == null) return null;
+    if (d7 === MAX_D7) return "#ef4444";
+    if (d7 >= 15) return "#f59e0b";
+    return null;
+  }
+  function waitTone(n) {
+    return n >= 4 ? "#f59e0b" : "#64748b";
+  }
+  const OPEN_TOTAL = bots.reduce((n, b) => n + b.open.length, 0);
+  const OPEN_BOTS = bots.filter((b) => b.open.length > 0).length;
+  const ACTIVE_RT = bots.reduce((n, b) => n + b.routines.filter((r) => r.active).length, 0);
+  const PAUSED_RT = bots.reduce((n, b) => n + b.routines.filter((r) => !r.active).length, 0);
+  const TOP = bots.filter((b) => b.d7 != null).sort((a, b) => (b.d7 || 0) - (a.d7 || 0))[0];
+
+  function initials(name) {
+    return name.split(" ").map((w) => w.charAt(0)).join("").slice(0, 2);
+  }
+  function face(b, size) {
+    const ring = RING[b.key] || b.color;
+    return (
+      '<div class="face" style="width:' + size + "px;height:" + size + "px;font-size:" + Math.round(size / 2.6) +
+      "px;box-shadow:0 0 0 2px " + ring + '">' + esc(initials(b.name)) + "</div>"
+    );
+  }
+  function mixBar(mix, width) {
+    return (
+      '<div class="mix" style="width:' + width + '">' +
+      '<span style="flex:' + mix[0] + " 1 0;background:" + C.chat + '"></span>' +
+      '<span style="flex:' + mix[1] + " 1 0;background:" + C.routines + '"></span>' +
+      '<span style="flex:' + mix[2] + " 1 0;background:" + C.b2b + '"></span></div>'
+    );
+  }
+  function legend3() {
+    return (
+      '<div class="legend">' +
+      [["Chat with you", C.chat], ["Routines", C.routines], ["Bot-to-bot", C.b2b]]
+        .map((p) => "<span><i style='background:" + p[1] + "'></i>" + p[0] + "</span>")
+        .join("") +
+      "</div>"
+    );
+  }
+  function btn(html, attrs) {
+    return "<div role='button' tabindex='0' " + attrs + ">" + html + "</div>";
+  }
+
+  function weekBar() {
+    const elapsed = weekElapsed();
+    const used = WEEK.used;
+    const proj = projected(used, elapsed);
+    const col = projColors(proj);
+    const end = new Date(WEEK.resetAt).getTime();
+    const start = end - WEEK_MS;
+    const DN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const DAY = 24 * 3600 * 1000;
+    const OFF = 5 * 3600 * 1000;
+    const bounds = [start];
+    for (let m = Math.floor((start - OFF) / DAY) * DAY + DAY + OFF; m < end; m += DAY) bounds.push(m);
+    bounds.push(end);
+    const ticks = [];
+    const lines = [];
+    for (let i = 0; i < bounds.length - 1; i++) {
+      const a = ((bounds[i] - start) / WEEK_MS) * 100;
+      const b = ((bounds[i + 1] - start) / WEEK_MS) * 100;
+      if (i > 0) lines.push(a);
+      const d = new Date(bounds[i] - OFF);
+      ticks.push({ pct: (a + b) / 2, top: b - a < 8 ? "" : DN[d.getUTCDay()], bot: String(d.getUTCDate()) });
+    }
+    const e = elapsed;
+    const u = Math.min(100, used);
+    const pr = Math.min(100, proj);
+    const nowAlign = e > 85 ? "translateX(-100%)" : e < 15 ? "none" : "translateX(-50%)";
+    return (
+      '<div class="week">' +
+        '<div class="week-top"><div class="week-kicker">Limit week</div>' +
+        '<div class="week-chip" style="background:linear-gradient(90deg,' + col[0] + "," + col[1] + ')">' + esc(col[2]) + "</div></div>" +
+        '<div class="week-stats"><span><b>' + used + "%</b> used</span><span><b>" + Math.round(e) +
+        "%</b> of week gone</span><span><b>~" + proj + "%</b> projected by reset</span></div>" +
+        '<div class="week-track">' +
+          '<div class="week-now-label" style="left:' + e + "%;transform:" + nowAlign + '">Now</div>' +
+          '<div class="week-rail">' +
+            (pr > u ? '<div class="week-proj" style="width:' + pr + "%;background:repeating-linear-gradient(135deg," + col[0] + "55 0 6px," + col[0] + '22 6px 12px)"></div>' : "") +
+            '<div class="week-used" style="width:' + u + "%;background:linear-gradient(90deg," + col[0] + "," + col[1] + ')"></div>' +
+            lines.map((p) => '<div class="week-line" style="left:' + p + '%"></div>').join("") +
+          "</div>" +
+          '<div class="week-marker" style="left:' + e + '%"></div>' +
+        "</div>" +
+        '<div class="week-axis">' +
+          ticks.map((t) => '<div class="week-tick" style="left:' + t.pct + "%;opacity:" + (t.top ? 1 : 0.7) + '"><div class="d">' + esc(t.top) + '</div><div class="n">' + esc(t.bot) + "</div></div>").join("") +
+        "</div>" +
+        '<div class="week-foot">Resets ' + esc(WEEK.resets) + " · striped = projected at the current pace</div>" +
+      "</div>"
+    );
+  }
+
+  function tiles() {
+    const items = [
+      { id: "chat", label: "Chat with you", value: MIX.chat + "%", sub: "Work you asked for" },
+      { id: "routines", label: "Routines", value: MIX.routines + "%", sub: ACTIVE_RT + " active, " + PAUSED_RT + " paused" },
+      { id: "b2b", label: "Bot-to-bot", value: MIX.b2b + "%", sub: "Bots handing off work" },
+      { id: "top", label: "Top bot", value: TOP.d7 + "%", sub: TOP.name },
+      { id: "busiest", label: "Busiest day", value: BUSIEST.share + "%", sub: BUSIEST.day + ", chat" },
+    ];
+    return (
+      '<div><div class="sec-title"><span class="sec-bar"></span><h2>This week</h2><div class="sub">Shares of Grok Bot usage, last 7 days</div></div>' +
+      '<div class="tiles">' +
+      items.map((t) => {
+        const a = ACCENT;
+        const top = TILE_ACCENT[t.label] || a;
+        return btn(
+          '<div class="lbl" style="color:' + a + '">' + esc(t.label) + '</div><div class="val">' + esc(t.value) +
+            '</div><div class="sub">' + esc(t.sub) + '</div><span class="chev">›</span>',
+          'class="tile" data-act="sheet" data-id="' + t.id + '" style="background:linear-gradient(135deg,' + a + "24," + a +
+            "0a);border:1px solid " + a + "38;border-top:3px solid " + top + '"'
+        );
+      }).join("") +
+      "</div></div>"
+    );
+  }
+
+  function waitItem(o, lead, key) {
+    const on = state.openWait === key;
+    return (
+      '<div class="wait-item' + (on ? " open" : "") + '">' +
+        btn(
+          '<span class="wait-dot"></span><div class="t">' +
+            (lead ? '<span class="wait-lead">' + esc(lead) + "</span>" : "") +
+            esc(o.t) + '</div><span class="chev' + (on ? " on" : "") + '">›</span>',
+          'class="wait-item-head" data-act="wait-item" data-id="' + esc(key) + '"'
+        ) +
+        (on
+          ? '<div class="wait-detail">' +
+            [["What it is", o.what], ["Why it's waiting", o.why], ["What you do", o.todo]]
+              .map((p, i) => "<p><b" + (i === 2 ? ' style="color:var(--accent)"' : "") + ">" + esc(p[0]) + ":</b> " + esc(p[1]) + "</p>")
+              .join("") +
+            "</div>"
+          : "") +
+      "</div>"
+    );
+  }
+
+  function rtRow(r, lead) {
+    const runs = r.runs === "On arrival" ? "On arrival" : r.runs !== "0" && r.runs !== "—" ? r.runs + " runs/wk" : "";
+    return (
+      '<div class="rt' + (r.active ? "" : " paused") + '"><span class="rt-bar"></span>' +
+      '<div class="rt-body"><div>' +
+      (lead ? '<span class="rt-lead">' + esc(lead) + "</span>" : "") +
+      '<span class="rt-name">' + esc(r.name) + "</span></div>" +
+      '<div class="rt-sched">' + esc(r.sched) + (r.note ? ". " + esc(r.note) : "") + "</div></div>" +
+      '<div class="rt-side"><span class="s7">' + esc(r.s7) + "</span><span class=\"runs\">" +
+      esc(runs || (r.active ? "" : "paused")) + "</span></div></div>"
+    );
+  }
+
+  function spark(values, color) {
+    const max = Math.max.apply(null, values.concat([1]));
+    const W = 320, H = 110, bw = W / values.length;
+    const text = getComputedStyle(document.documentElement).getPropertyValue("--text-2").trim() || "#94a3b8";
+    const tert = getComputedStyle(document.documentElement).getPropertyValue("--text-3").trim() || "#94a3b8";
+    return (
+      '<svg class="spark" viewBox="0 0 ' + W + " " + (H + 18) + '">' +
+      values.map((v, i) => {
+        const h = Math.max(3, (v / max) * H);
+        return (
+          "<g>" +
+          '<rect x="' + (i * bw + 5) + '" y="' + (H - h) + '" width="' + (bw - 10) + '" height="' + h + '" rx="5" fill="' + color + '" opacity="' + (0.35 + (0.65 * v) / max) + '"/>' +
+          '<text x="' + (i * bw + bw / 2) + '" y="' + (H - h - 4) + '" text-anchor="middle" font-size="10" fill="' + text + '">' + (v < 1 ? "&lt;1" : v) + "</text>" +
+          '<text x="' + (i * bw + bw / 2) + '" y="' + (H + 14) + '" text-anchor="middle" font-size="9.5" fill="' + tert + '">' + esc(DAYS[i].split(" ")[1]) + "</text>" +
+          "</g>"
+        );
+      }).join("") +
+      "</svg>"
+    );
+  }
+
+  function botBody(b) {
+    const showPaused = !!state.pausedBot[b.key];
+    const active = b.routines.filter((r) => r.active);
+    const paused = b.routines.filter((r) => !r.active);
+    const mini = (label, value) =>
+      '<div class="mini"><div class="l">' + esc(label) + '</div><div class="v">' + esc(value) + "</div></div>";
+    return (
+      '<div class="bot-body"><div class="role">' + esc(b.role) + "</div>" +
+      '<div class="mini-row">' +
+        mini("7 days", b.d7 != null ? b.d7 + "%" : "—") +
+        mini("30 days", b.d30 != null ? b.d30 + "%" : "—") +
+        mini("Waiting", String(b.open.length)) +
+      "</div>" +
+      (b.mix
+        ? '<div class="mix-legend"><span><b style="color:' + C.chat + '">' + b.mix[0] + "%</b> chat</span>" +
+          '<span><b style="color:' + C.routines + '">' + b.mix[1] + "%</b> routines</span>" +
+          '<span><b style="color:' + C.b2b + '">' + (b.mix[2] < 1 ? "&lt;1" : b.mix[2]) + "%</b> bot-to-bot</span></div>"
+        : "") +
+      (b.open.length ? '<div class="head-l">Waiting on you</div>' : "") +
+      b.open.map((o, i) => waitItem(o, "", b.key + "-o-" + i)).join("") +
+      '<div class="head-l">Recent work</div><div class="recent">' +
+      b.recent.map((r) =>
+        '<div class="recent-row"><span class="dot"></span><p><span class="when">' + esc(r.when) + "</span>" + esc(r.text) + "</p></div>"
+      ).join("") +
+      "</div>" +
+      (b.routines.length ? '<div class="head-l">Routines</div>' : "") +
+      active.map((r) => rtRow(r)).join("") +
+      (paused.length
+        ? btn(showPaused ? "Hide paused" : "Show " + paused.length + " paused", 'class="linkish" data-act="paused-bot" data-id="' + b.key + '"')
+        : "") +
+      (showPaused ? paused.map((r) => rtRow(r)).join("") : "") +
+      (b.trend ? '<div class="head-l">Usage by day, last 7 days</div>' + spark(b.trend, b.color) : "") +
+      "</div>"
+    );
+  }
+
+  function botList() {
+    const list = bots.slice().sort((a, b) =>
+      state.sortBy === "waiting"
+        ? b.open.length - a.open.length || (b.d7 || 0) - (a.d7 || 0)
+        : (b.d7 == null ? -1 : b.d7) - (a.d7 == null ? -1 : a.d7) || (b.d30 || 0) - (a.d30 || 0)
+    );
+    return (
+      "<div>" +
+      '<div class="row-tools">' +
+        btn("By usage", 'class="pill' + (state.sortBy === "usage" ? " on" : "") + '" data-act="sort" data-id="usage"') +
+        btn("By waiting items", 'class="pill' + (state.sortBy === "waiting" ? " on" : "") + '" data-act="sort" data-id="waiting"') +
+        '<div style="flex:1 1 auto"></div>' + legend3() +
+      "</div>" +
+      '<div class="bot-list">' +
+      list.map((b) => {
+        const on = state.openBot === b.key;
+        const hc = heat(b.d7);
+        const ring = RING[b.key] || b.color;
+        return (
+          '<div class="bot-card' + (on ? " open" : "") + '" style="border-color:' + (on ? b.color : "var(--border)") + '">' +
+          btn(
+            face(b, 46) +
+            '<div class="bot-main"><div class="bot-name-row"><span class="bot-name">' + esc(b.name) + "</span>" +
+            (b.open.length
+              ? '<span class="chip" style="color:' + waitTone(b.open.length) + ";background:" + waitTone(b.open.length) + '1f">' +
+                b.open.length + " waiting</span>"
+              : "") +
+            "</div><div class=\"bot-last\">" + esc(b.last) + "</div>" +
+            (b.mix && b.d7 != null ? mixBar(b.mix, (b.d7 / 40) * 100 + "%") : "") +
+            '</div><div class="bot-pct"><div><div class="n" style="color:' + (b.d7 == null ? "var(--text-3)" : hc || "var(--text)") + '">' +
+            (b.d7 != null ? b.d7 + "%" : "—") + '</div><div class="l">7 days</div></div>' +
+            '<span class="chev' + (on ? " on" : "") + '">›</span></div>',
+            'class="bot-head" data-act="bot" data-id="' + b.key + '" style="--ring:' + ring +
+              ";background:linear-gradient(90deg," + b.color + (on ? "2e" : "18") + ",transparent 70%)\""
+          ) +
+          (on ? botBody(b) : "") +
+          "</div>"
+        );
+      }).join("") +
+      "</div></div>"
+    );
+  }
+
+  function waitingBox() {
+    return (
+      '<div class="wait-box"><div class="wait-inner">' +
+      btn(
+        '<div class="count">' + OPEN_TOTAL + '</div><div style="flex:1 1 0;min-width:0"><div class="t">Waiting on you</div>' +
+        '<div class="s">Across ' + OPEN_BOTS + " bots · " + (state.waitOpen ? "tap one for details" : "tap to open") +
+        '</div></div><span class="chev' + (state.waitOpen ? " on" : "") + '">›</span>',
+        'class="wait-head" data-act="wait-box"'
+      ) +
+      (state.waitOpen
+        ? '<div class="wait-list">' +
+          bots.filter((b) => b.open.length).map((b) => b.open.map((o, i) => waitItem(o, b.name, b.key + "-w-" + i)).join("")).join("") +
+          "</div>"
+        : "") +
+      "</div></div>"
+    );
+  }
+
+  function heatmap() {
+    const hourOff = state.heatMode === "hour" && !ACTIVITY.hours;
+    let grid = "";
+    if (hourOff) {
+      grid = '<div class="heat-empty">By hour needs hourly activity per bot, which the usage report doesn\'t give yet. Showing it only when real hourly data is added.</div>';
+    } else {
+      const src = state.heatMode === "hour" && ACTIVITY.hours ? ACTIVITY.hours : ACTIVITY.days;
+      const keys = bots.map((b) => b.key).filter((k) => src[k]);
+      const n = keys.length ? src[keys[0]].length : 0;
+      const max = Math.max(1, ...keys.map((k) => Math.max.apply(null, src[k])));
+      const cols =
+        state.heatMode === "hour"
+          ? Array.from({ length: n }, (_, i) => (i % 3 === 0 ? String(i).padStart(2, "0") : ""))
+          : DAYS.map((d) => d.split(" ")[1]);
+      grid =
+        '<div class="heat-grid"><div class="heat-table" style="grid-template-columns:92px repeat(' + n + ",minmax(22px,1fr));min-width:" +
+        (92 + n * 26) + 'px">' +
+        keys.map((k) => {
+          const b = bots.find((x) => x.key === k);
+          return (
+            '<div class="heat-name">' + esc(b.name) + "</div>" +
+            src[k].map((v, i) => {
+              const title = b.name + " · " + (state.heatMode === "day" ? DAYS[i] : i + ":00") + " · " + (v === 0 ? "0" : v < 1 ? "<1%" : v + "%");
+              const op = v === 0 ? 1 : 0.18 + 0.82 * Math.sqrt(v / max);
+              const bg = v === 0 ? "var(--border-subtle)" : ACCENT;
+              return '<div class="heat-cell" title="' + esc(title) + '" style="background:' + bg + ";opacity:" + op + '"></div>';
+            }).join("")
+          );
+        }).join("") +
+        "<div></div>" +
+        cols.map((c) => '<div class="heat-col">' + esc(c) + "</div>").join("") +
+        "</div></div>";
+    }
+    return (
+      '<div id="heatmap"><div class="sec-title"><span class="sec-bar"></span><h2>Activity by bot</h2></div>' +
+      '<div class="panel"><div class="heat-tools">' +
+        btn("By hour", 'class="pill' + (state.heatMode === "hour" ? " on" : "") + '" data-act="heat" data-id="hour" style="opacity:' + (ACTIVITY.hours ? 1 : 0.55) + '"') +
+        btn("By day", 'class="pill' + (state.heatMode === "day" ? " on" : "") + '" data-act="heat" data-id="day"') +
+      "</div>" + grid +
+      '<div class="heat-foot"><div>Share of Grok Bot usage by bot and day, last 7 days (UTC days).</div>' +
+      '<div class="heat-scale">Fewer ' + [0.2, 0.4, 0.6, 0.8, 1].map((o) => "<i style='opacity:" + o + "'></i>").join("") + " More</div></div>" +
+      "</div></div>"
+    );
+  }
+
+  function trend7() {
+    const W = 620, H = 150, max = 30, bw = W / DAYS.length;
+    const text = getComputedStyle(document.documentElement).getPropertyValue("--text-2").trim() || "#94a3b8";
+    const tert = getComputedStyle(document.documentElement).getPropertyValue("--text-3").trim() || "#94a3b8";
+    return (
+      '<svg class="chart" viewBox="0 0 ' + W + " " + (H + 22) + '">' +
+      DAYS.map((d, i) => {
+        const a = (TYPE7.chat[i] / max) * H;
+        const r = (TYPE7.routines[i] / max) * H;
+        const c = (TYPE7.b2b[i] / max) * H;
+        const tot = TYPE7.chat[i] + TYPE7.routines[i] + TYPE7.b2b[i];
+        const x = i * bw + 10, w = bw - 20;
+        return (
+          "<g>" +
+          '<rect x="' + x + '" y="' + (H - r) + '" width="' + w + '" height="' + r + '" rx="3" fill="' + C.routines + '"/>' +
+          '<rect x="' + x + '" y="' + (H - r - c) + '" width="' + w + '" height="' + c + '" fill="' + C.b2b + '"/>' +
+          '<rect x="' + x + '" y="' + (H - r - c - a) + '" width="' + w + '" height="' + a + '" rx="3" fill="' + C.chat + '"/>' +
+          '<text x="' + (x + w / 2) + '" y="' + (H - r - c - a - 5) + '" text-anchor="middle" font-size="11" fill="' + text + '">' + Math.round(tot) + "%</text>" +
+          '<text x="' + (x + w / 2) + '" y="' + (H + 16) + '" text-anchor="middle" font-size="11" fill="' + tert + '">' + esc(d) + "</text>" +
+          "</g>"
+        );
+      }).join("") +
+      "</svg>"
+    );
+  }
+  function trend30() {
+    const W = 620, H = 150, max = 10, bw = W / DAYS30.length;
+    const text = getComputedStyle(document.documentElement).getPropertyValue("--text-2").trim() || "#94a3b8";
+    const tert = getComputedStyle(document.documentElement).getPropertyValue("--text-3").trim() || "#94a3b8";
+    const mx = Math.max.apply(null, DAYS30);
+    return (
+      '<svg class="chart" viewBox="0 0 ' + W + " " + (H + 22) + '">' +
+      "<defs><linearGradient id='g30' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='#8b5cf6'/><stop offset='1' stop-color='#3b82f6'/></linearGradient></defs>" +
+      DAYS30.map((v, i) => {
+        const h = Math.max(2, (v / max) * H);
+        return '<rect x="' + (i * bw + 2) + '" y="' + (H - h) + '" width="' + (bw - 4) + '" height="' + h + '" rx="3" fill="url(#g30)" opacity="' + (v >= 7 ? 1 : 0.55) + '"/>';
+      }).join("") +
+      Object.keys(D30L).map((k) => {
+        const i = Number(k);
+        const x = Math.min(W - 24, Math.max(24, i * bw + bw / 2));
+        return '<text x="' + x + '" y="' + (H + 16) + '" text-anchor="middle" font-size="11" fill="' + tert + '">' + esc(D30L[k]) + "</text>";
+      }).join("") +
+      DAYS30.map((v, i) =>
+        v === mx
+          ? '<text x="' + (i * bw + bw / 2) + '" y="' + (H - (v / max) * H - 4) + '" text-anchor="middle" font-size="11" fill="' + text + '">' + v + "%</text>"
+          : ""
+      ).join("") +
+      "</svg>"
+    );
+  }
+
+  function accordion() {
+    const allRt = [];
+    bots.forEach((b) => b.routines.forEach((r) => allRt.push({ b, r })));
+    const elapsed = weekElapsed();
+    const proj = projected(WEEK.used, elapsed);
+    const col = projColors(proj);
+    function acc(id, title, sub, inner) {
+      const on = state.sec === id;
+      return (
+        '<div class="acc">' +
+        btn(
+          '<div style="flex:1 1 0;min-width:0"><div class="t">' + esc(title) + '</div><div class="s">' + esc(sub) +
+            '</div></div><span class="chev' + (on ? " on" : "") + '">›</span>',
+          'class="acc-head" data-act="acc" data-id="' + id + '" style="--acc-accent:' + (ACC_ACCENT[id] || VIOLET) +
+            ";background:linear-gradient(120deg," + ACC_FROM[id] + "," + ACC_TO[id] + ')"'
+        ) +
+        (on ? '<div class="acc-body">' + inner + "</div>" : "") +
+        "</div>"
+      );
+    }
+    return (
+      '<div><div class="sec-title"><span class="sec-bar"></span><h2>More</h2></div>' +
+      '<div style="display:flex;flex-direction:column;gap:12px">' +
+      acc(
+        "routines",
+        "Routines",
+        ACTIVE_RT + " active · paused hidden",
+        allRt.filter((x) => x.r.active).map((x) => rtRow(x.r, x.b.name)).join("") +
+          btn(
+            state.showPausedAll ? "Hide paused routines" : "Show " + PAUSED_RT + " paused routines",
+            'class="linkish" data-act="paused-all" style="font-size:13.5px;padding:12px 2px"'
+          ) +
+          (state.showPausedAll ? allRt.filter((x) => !x.r.active).map((x) => rtRow(x.r, x.b.name)).join("") : "")
+      ) +
+      acc(
+        "trends",
+        "Usage trends",
+        "Daily shares, last 7 and 30 days",
+        '<div class="trend-grid"><div class="trend-box"><h3>Last 7 days, by type</h3>' + legend3() + trend7() + "</div>" +
+          '<div class="trend-box"><h3>Last 30 days</h3>' + trend30() + "</div></div>" +
+          '<div class="trend-note">Spikes come from longer chat sessions. Routines stay fairly steady day to day. Days are UTC.</div>' +
+          '<div class="trend-box credits"><h3>Limit and extra credits</h3>' +
+          '<div class="credits-stats"><span><b style="color:var(--text)">$' + (WEEK.extraCredits || 0) +
+          "</b> extra credits</span><span><b style='color:var(--text)'>" + WEEK.used +
+          "%</b> of the weekly limit used</span><span><b style='color:" + col[0] + "'>~" + proj +
+          "%</b> projected by reset</span></div>" +
+          "<p>No extra credits are set, so if the weekly limit runs out, bots and routines pause until it resets. Nothing is charged. Next reset: " +
+          esc(WEEK.resets) + ".</p></div>"
+      ) +
+      acc(
+        "gaps",
+        "What this page can't see",
+        "Limits of the data",
+        GAPS.map((g) => '<div class="gap"><i></i><div>' + esc(g) + "</div></div>").join("")
+      ) +
+      "</div></div>"
+    );
+  }
+
+  function dayBars(values, color, highlightMax) {
+    const max = Math.max.apply(null, values.concat([1]));
+    const mi = values.indexOf(Math.max.apply(null, values));
+    return (
+      '<div class="daybars">' +
+      values.map((v, i) => {
+        const d = DAYS[i].split(" ");
+        const label = d[0].slice(0, 2) + " " + d[1];
+        return (
+          '<div class="col"><span class="v">' + fmtVal(v) + '</span><div class="bar" style="height:' +
+          Math.max(3, (v / max) * 80) + "px;background:" + color + ";opacity:" + (highlightMax && i !== mi ? 0.45 : 1) +
+          '"></div><span class="d">' + esc(label) + "</span></div>"
+        );
+      }).join("") +
+      "</div>"
+    );
+  }
+  function rankRow(b, label, sub, value, max, color) {
+    const w = max > 0 && value > 0 ? (value / max) * 100 : 0;
+    return (
+      '<div class="rank">' + (b ? face(b, 30) : "") +
+      '<div class="rank-body"><div class="rank-top"><span class="l">' + esc(label) + '</span><span class="v">' +
+      (value < 0 ? "—" : fmtShare(value)) + "</span></div>" +
+      (sub ? '<span class="rank-sub">' + esc(sub) + "</span>" : "") +
+      '<div class="rank-track"><div style="width:' + w + "%;background:" + color + ';min-width:' + (value > 0 ? 4 : 0) + 'px"></div></div></div></div>'
+    );
+  }
+  function stat(label, value, acc) {
+    return (
+      '<div class="mini" style="background:' + acc + "1a;border:1px solid " + acc + '40"><div class="l">' +
+      esc(label) + '</div><div class="v">' + esc(value) + "</div></div>"
+    );
+  }
+  function sheetBody(id) {
+    const acc = SHEETS[id].accent;
+    const withMix = bots.filter((b) => b.mix);
+    const h = (t) => '<div class="sheet-h">' + esc(t) + "</div>";
+    if (id === "chat") {
+      const ranked = withMix.slice().sort((a, b) => b.mix[0] - a.mix[0]).slice(0, 3);
+      const max = ranked.length ? ranked[0].mix[0] : 0;
+      return (
+        '<div class="mini-row">' + stat("Share, 7 days", MIX.chat + "%", acc) + stat("Peak day", Math.max.apply(null, TYPE7.chat) + "%", acc) + "</div>" +
+        h("Top bots by chat share") +
+        ranked.map((b) => rankRow(b, b.name, "", b.mix[0], max, acc)).join("") +
+        h("Chat by day, last 7 days") + dayBars(TYPE7.chat, acc)
+      );
+    }
+    if (id === "routines") {
+      const all = [];
+      bots.forEach((b) => b.routines.forEach((r) => all.push({ b, r })));
+      const ranked = all.slice().sort((x, y) => shareNum(y.r.s7) - shareNum(x.r.s7)).slice(0, 5);
+      const max = ranked.length ? shareNum(ranked[0].r.s7) : 0;
+      return (
+        '<div class="mini-row">' + stat("Share, 7 days", MIX.routines + "%", acc) + stat("Active", String(ACTIVE_RT), acc) +
+        stat("Paused", String(PAUSED_RT), acc) + "</div>" +
+        h("Top routines by share, 7 days") +
+        ranked.map((x) => rankRow(x.b, x.r.name, x.b.name + (x.r.active ? "" : " · paused"), shareNum(x.r.s7), max, acc)).join("") +
+        h("Routines by day, last 7 days") + dayBars(TYPE7.routines, acc)
+      );
+    }
+    if (id === "b2b") {
+      const ranked = withMix.filter((b) => b.mix[2] > 0).sort((a, b) => b.mix[2] - a.mix[2]);
+      const max = ranked.length ? ranked[0].mix[2] : 0;
+      return (
+        '<div class="mini-row">' + stat("Share, 7 days", MIX.b2b + "%", acc) + stat("Bots handing off", ranked.length ? String(ranked.length) : "—", acc) + "</div>" +
+        h("Who hands off the most") +
+        (ranked.length ? ranked.map((b) => rankRow(b, b.name, "", b.mix[2], max, acc)).join("") : '<div style="font-size:13.5px;color:var(--text-3)">—</div>') +
+        h("Bot-to-bot by day, last 7 days") + dayBars(TYPE7.b2b, acc)
+      );
+    }
+    if (id === "top") {
+      const b = TOP;
+      return (
+        '<div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">' + face(b, 44) +
+        "<div><div style='font-size:17px;font-weight:750'>" + esc(b.name) + "</div><div style='font-size:12.5px;color:var(--text-3)'>" +
+        esc(b.role) + "</div></div></div>" +
+        '<div class="mini-row">' + stat("7 days", b.d7 != null ? b.d7 + "%" : "—", acc) + stat("30 days", b.d30 != null ? b.d30 + "%" : "—", acc) + "</div>" +
+        h("Where its usage went, 7 days") +
+        (b.mix
+          ? mixBar(b.mix, "100%") +
+            '<div class="mix-legend" style="margin-top:8px;font-size:13px"><span><b style="color:var(--text)">' +
+            fmtShare(b.mix[0]) + "</b> chat</span><span><b style='color:var(--text)'>" + fmtShare(b.mix[1]) +
+            "</b> routines</span><span><b style='color:var(--text)'>" + fmtShare(b.mix[2]) + "</b> bot-to-bot</span></div>"
+          : '<div style="font-size:13.5px;color:var(--text-3)">—</div>') +
+        (b.trend ? h("By day, last 7 days") + dayBars(b.trend, acc, true) : "")
+      );
+    }
+    if (id === "busiest") {
+      const tot = DAYS.map((_, i) => TYPE7.chat[i] + TYPE7.routines[i] + TYPE7.b2b[i]);
+      return (
+        '<div class="mini-row">' + stat("Busiest", BUSIEST.day, acc) + stat("Chat that day", BUSIEST.share + "%", acc) + "</div>" +
+        h("All usage by day, last 7 days") + dayBars(tot, acc, true) +
+        '<div style="margin-top:10px">' + legend3() + "</div>"
+      );
+    }
+    return "";
+  }
+
+  function sheetHtml() {
+    if (!state.sheet) return "";
+    const s = SHEETS[state.sheet];
+    const dragStyle = state.closing
+      ? ""
+      : state.drag
+        ? "transform:translateY(" + state.drag + "px);transition:none;"
+        : "";
+    return (
+      '<div class="sheet-root" id="sheet">' +
+        '<div class="sheet-bg' + (state.closing ? " closing" : "") + '" data-act="close-sheet"></div>' +
+        '<div class="sheet' + (state.closing ? " closing" : "") + '" role="dialog" aria-label="' + esc(s.title) +
+          '" style="border-top:3px solid ' + s.accent + ";" + dragStyle + '">' +
+          '<div class="sheet-handle" data-sheet-handle="1"><div class="grab"></div>' +
+          '<div class="sheet-title"><span class="wait-dot" style="background:' + s.accent + '"></span><h3>' +
+          esc(s.title) + "</h3>" +
+          btn("✕", 'class="close-x" data-act="close-sheet" aria-label="Close"') +
+          "</div></div>" +
+          '<div class="sheet-body">' + sheetBody(state.sheet) + "</div>" +
+        "</div></div>"
+    );
+  }
+
+  const ICON =
+    '<svg class="icon-wrap" width="42" height="42" viewBox="0 0 64 64" role="img" aria-label="AI Mission Control">' +
+    "<defs>" +
+    '<linearGradient id="mcBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3730a3"/><stop offset="0.55" stop-color="#7c3aed"/><stop offset="1" stop-color="#fb7185"/></linearGradient>' +
+    '<linearGradient id="mcGloss" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity="0.38"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>' +
+    '<radialGradient id="mcDot" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#ccfbf1"/><stop offset="1" stop-color="#2dd4bf"/></radialGradient>' +
+    "</defs>" +
+    '<rect x="2" y="2" width="60" height="60" rx="15" fill="url(#mcBg)"/>' +
+    '<path d="M2 17 A15 15 0 0 1 17 2 H47 A15 15 0 0 1 62 17 V26 C44 34 22 34 2 26 Z" fill="url(#mcGloss)"/>' +
+    '<ellipse cx="32" cy="33" rx="23" ry="9" fill="none" stroke="#ffffff" stroke-opacity="0.55" stroke-width="2.2" transform="rotate(-24 32 33)"/>' +
+    '<circle cx="32" cy="33" r="3.2" fill="#ffffff"/>' +
+    '<circle cx="32" cy="33" r="8" fill="none" stroke="#ffffff" stroke-opacity="0.7" stroke-width="1.6"/>' +
+    '<circle cx="32" cy="33" r="13" fill="none" stroke="#ffffff" stroke-opacity="0.35" stroke-width="1.4"/>' +
+    '<path d="M32 20 v-4 M32 50 v-4 M20 33 h-4 M48 33 h4" stroke="#ffffff" stroke-opacity="0.8" stroke-width="1.8" stroke-linecap="round"/>' +
+    '<circle cx="51.5" cy="24.5" r="4.2" fill="url(#mcDot)" stroke="#ffffff" stroke-width="1.2"/>' +
+    '<rect x="2.5" y="2.5" width="59" height="59" rx="14.5" fill="none" stroke="#ffffff" stroke-opacity="0.18"/>' +
+    "</svg>";
+
+  function header() {
+    return (
+      '<div class="example-banner">' + esc(DATA.meta.label) + "</div>" +
+      '<div class="header">' + ICON +
+      '<div class="titles"><h1>AI Mission Control</h1><div class="sub">Updated ' + esc(SNAPSHOT) + "</div></div>" +
+      btn(
+        '<svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true" class="' + (state.refreshing ? "spin" : "") +
+          '"><path d="M20 12a8 8 0 1 1-2.34-5.66" fill="none" stroke="#818cf8" stroke-width="2.4" stroke-linecap="round"/>' +
+          '<path d="M20 4v5h-5" fill="none" stroke="#818cf8" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+        'class="refresh-btn" data-act="refresh" aria-label="Refresh" title="Refresh"'
+      ) +
+      "</div>"
+    );
+  }
+
+  function pullBar() {
+    if (state.pull <= 0 && !state.refreshing) return "";
+    return (
+      '<div class="pull" style="height:' + (state.pull || 0) + "px;transition:" + (startY == null ? "height 0.2s" : "none") + '">' +
+      '<div class="pull-inner"><div class="spinner" style="transform:rotate(' + state.pull * 4 + "deg);" +
+      (state.refreshing ? "animation:mcspin 0.8s linear infinite" : "") + '"></div>' +
+      '<span class="pull-lbl">' + (state.refreshing ? "Refreshing…" : state.pull >= PULL_AT ? "Release to refresh" : "Pull to refresh") +
+      "</span></div></div>"
+    );
+  }
+
+  function render() {
+    root.innerHTML =
+      pullBar() +
+      header() +
+      weekBar() +
+      tiles() +
+      botList() +
+      waitingBox() +
+      heatmap() +
+      accordion() +
+      sheetHtml() +
+      (state.toast ? '<div class="toast">' + esc(state.toast) + "</div>" : "");
+  }
+
+  function doRefresh() {
+    if (state.refreshing) return;
+    state.refreshing = true;
+    state.pull = PULL_AT;
+    render();
+    setTimeout(function () {
+      state.refreshing = false;
+      state.pull = 0;
+      state.toast = "Showing latest saved numbers (updated " + SNAPSHOT + ")";
+      render();
+      setTimeout(function () {
+        state.toast = null;
+        render();
+      }, 3000);
+    }, 700);
+  }
+  function openSheet(id) {
+    state.closing = false;
+    state.drag = 0;
+    state.sheet = id;
+    render();
+  }
+  function closeSheet() {
+    state.closing = true;
+    render();
+    setTimeout(function () {
+      state.sheet = null;
+      state.closing = false;
+      state.drag = 0;
+      render();
+    }, 240);
+  }
+
+  function onAct(act, id, ev) {
+    if (act === "sheet") openSheet(id);
+    else if (act === "close-sheet") closeSheet();
+    else if (act === "bot") {
+      state.openBot = state.openBot === id ? null : id;
+      render();
+    } else if (act === "sort") {
+      state.sortBy = id;
+      render();
+    } else if (act === "wait-box") {
+      state.waitOpen = !state.waitOpen;
+      render();
+    } else if (act === "wait-item") {
+      state.openWait = state.openWait === id ? null : id;
+      render();
+    } else if (act === "paused-bot") {
+      state.pausedBot[id] = !state.pausedBot[id];
+      render();
+    } else if (act === "paused-all") {
+      state.showPausedAll = !state.showPausedAll;
+      render();
+    } else if (act === "acc") {
+      state.sec = state.sec === id ? null : id;
+      render();
+    } else if (act === "heat") {
+      state.heatMode = id;
+      render();
+    } else if (act === "refresh") doRefresh();
+  }
+
+  root.addEventListener("click", function (e) {
+    const el = e.target.closest("[data-act]");
+    if (!el) return;
+    e.preventDefault();
+    onAct(el.getAttribute("data-act"), el.getAttribute("data-id"), e);
+  });
+  root.addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const el = e.target.closest("[data-act]");
+    if (!el) return;
+    e.preventDefault();
+    onAct(el.getAttribute("data-act"), el.getAttribute("data-id"), e);
+  });
+
+  function atTop() {
+    const el = document.scrollingElement || document.documentElement;
+    return (el ? el.scrollTop : 0) <= 0 && (window.scrollY || 0) <= 0;
+  }
+  root.addEventListener(
+    "touchstart",
+    function (e) {
+      if (e.target.closest("[data-sheet-handle]")) {
+        sheetY = e.touches[0].clientY;
+        return;
+      }
+      if (e.target.closest(".sheet")) return;
+      startY = atTop() && !state.refreshing && !state.sheet ? e.touches[0].clientY : null;
+    },
+    { passive: true }
+  );
+  root.addEventListener(
+    "touchmove",
+    function (e) {
+      if (sheetY != null) {
+        state.drag = Math.max(0, e.touches[0].clientY - sheetY);
+        const sheet = document.querySelector(".sheet");
+        if (sheet) {
+          sheet.style.transition = "none";
+          sheet.style.transform = "translateY(" + state.drag + "px)";
+        }
+        return;
+      }
+      if (startY == null) return;
+      const d = e.touches[0].clientY - startY;
+      const pull = d <= 0 ? 0 : Math.min(110, d * 0.5);
+      if (pull !== state.pull) {
+        state.pull = pull;
+        const bar = document.querySelector(".pull");
+        if (bar) {
+          bar.style.height = pull + "px";
+          const sp = bar.querySelector(".spinner");
+          if (sp) sp.style.transform = "rotate(" + pull * 4 + "deg)";
+          const lbl = bar.querySelector(".pull-lbl");
+          if (lbl) lbl.textContent = pull >= PULL_AT ? "Release to refresh" : "Pull to refresh";
+        } else render();
+      }
+    },
+    { passive: true }
+  );
+  root.addEventListener("touchend", function () {
+    if (sheetY != null) {
+      const d = state.drag;
+      sheetY = null;
+      if (d > 90) closeSheet();
+      else {
+        state.drag = 0;
+        render();
+      }
+      return;
+    }
+    if (startY == null) return;
+    startY = null;
+    if (state.pull >= PULL_AT) doRefresh();
+    else {
+      state.pull = 0;
+      render();
+    }
+  });
+
+  render();
+})();
+
+  </script>
+</body>
+</html>

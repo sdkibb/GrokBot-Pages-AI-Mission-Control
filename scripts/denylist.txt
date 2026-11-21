@@ -1,0 +1,12 @@
+# Generic leak patterns for this public template.
+# One regex per line. Comments start with #.
+# Real personal names belong in a private denylist file outside this repo
+# (AMC_PRIVATE_DENYLIST, default /workspace/amc-private-denylist.txt).
+
+-----BEGIN (RSA |OPENSSH |EC |DSA )?PRIVATE KEY-----
+gh[pousr]_[A-Za-z0-9_]{20,}
+github_pat_[A-Za-z0-9_]{20,}
+xox[baprs]-[A-Za-z0-9-]{10,}
+sk-[A-Za-z0-9]{20,}
+AKIA[0-9A-Z]{16}
+asset:face-
