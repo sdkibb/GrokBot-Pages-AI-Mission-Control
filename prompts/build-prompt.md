@@ -26,5 +26,5 @@ Then create two separate scheduled routines that edit data only and stay quiet u
 1. A numbers-only run, hourly on the hour from 7 AM to 7 PM every day, that pulls the usage report once (limit 20) and writes only the snapshot time, the weekly limit block, and each bot's 7-day and 30-day share. It does not read chats or status files.
 2. A status run, hourly on the half hour from 7 AM to 7 PM every day, that pulls the full usage report, syncs routines, honours dismissed items without shrinking that block, reads each bot's status file instead of chat history, keeps confidential work at area level and investigation work to case references, and strips secrets. Missing or unreadable files go in the gap notes; a file older than 3 days is flagged stale.
 
-Give every bot a standing rule to keep its status file current per the "Mission Control status file" skill, and list every bot in /workspace/mission-control/bots.json, including a trading or investing bot if I have one.
+Give every bot a standing rule to keep its status file current per the "Mission Control status file" skill, with up to 10 recent items and up to 10 waiting items (only the most important; no need to fill all 10), and list every bot in /workspace/mission-control/bots.json, including a trading or investing bot if I have one.
 ```

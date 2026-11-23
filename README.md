@@ -87,9 +87,9 @@ Recent work and waiting items on a live Page come from a small JSON file that ea
 
 - Path: `/workspace/mission-control/status/<agentId>.json`.
 - Mapping: `/workspace/mission-control/bots.json` lists every bot in the fleet — including a trading or investing bot if you have one — with its agent id, Page key, and name. This repository ships an example at [`data/bots.example.json`](data/bots.example.json) that uses placeholders such as `<trader-agent-id>`. Do not commit real agent ids.
-- Fields: `botId`, `bot`, `updated` (ISO 8601 with the user's offset), `last`, `recent` (up to 3 lines, newest first), and `waiting` items `{ t, what, why, todo }`. An example file is at [`data/status/example-atlas.json`](data/status/example-atlas.json).
+- Fields: `botId`, `bot`, `updated` (ISO 8601 with the user's offset), `last`, `recent` (up to 10 lines, newest first), and `waiting` (up to 10 open items, `{ t, what, why, todo }`). Keep only the most important items; there is no need to fill all 10. An example file is at [`data/status/example-atlas.json`](data/status/example-atlas.json).
 - Write to a temp file in the same folder, then move it over the real file, and validate it with `jq` or `python3 -m json.tool`.
-- Each bot keeps a standing rule: whenever an item waiting on the user is added, answered, completed or dropped, or at the end of a turn with notable work, it writes its file. It skips the write when nothing changed.
+- Each bot keeps a standing rule: whenever an item waiting on the user is added, answered, completed or dropped, or at the end of a turn with notable work, it writes its file, with up to 10 recent items and up to 10 waiting items (only the most important; no need to fill all 10). It skips the write when nothing changed.
 - Never put secrets, passwords, tokens, codes, or card or account numbers in the file. Confidential work stays at area level. Investigation work uses case references only.
 
 ## Privacy

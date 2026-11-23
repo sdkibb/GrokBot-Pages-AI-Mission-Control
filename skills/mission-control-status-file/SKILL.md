@@ -26,14 +26,15 @@ A `bots.json` file in `/workspace/mission-control/` maps each agent id to the Pa
   "bot": "<your display name>",
   "updated": "2026-11-21T14:00:00-05:00",
   "last": "One short line on the latest thing you finished.",
-  "recent": ["Up to 3 short lines of recent work, newest first"],
+  "recent": ["Up to 10 short lines of recent work, newest first"],
   "waiting": [
     {"t": "Short title", "what": "What the user needs to do", "why": "Why it matters or the deadline", "todo": "The next action once they answer"}
   ]
 }
 ```
 - `updated` is the current time in the user's zone with its offset.
-- `waiting` holds only open items; an empty list means nothing is waiting.
+- `recent` holds up to 10 short lines, newest first. Keep only the most important; no need to fill all 10.
+- `waiting` holds only open items, up to 10, most important first. An empty list means nothing is waiting. No need to fill all 10.
 - Keep every line short and plain.
 
 ## How

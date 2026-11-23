@@ -77,8 +77,8 @@ Live files live at `/workspace/mission-control/status/<agentId>.json`, with the 
 | `bot` | string | Display name. |
 | `updated` | string | ISO 8601 timestamp with the user's offset. A file older than 3 days is flagged stale. |
 | `last` | string | One-line latest work. |
-| `recent` | string[] | Up to 3 short lines, newest first. |
-| `waiting` | `{ t, what, why, todo }[]` | Open items only. An empty list means nothing is waiting. |
+| `recent` | string[] | Up to 10 short lines, newest first. Keep only the most important; no need to fill all 10. |
+| `waiting` | `{ t, what, why, todo }[]` | Open items only, up to 10, most important first. An empty list means nothing is waiting. No need to fill all 10. |
 
 Write to a temp file in the same folder, then move it over the real file, and validate with `jq` or `python3 -m json.tool`. Each bot writes only its own file, when a waiting item is added, answered, completed or dropped, or at the end of a turn with notable work. It skips the write when nothing changed.
 
