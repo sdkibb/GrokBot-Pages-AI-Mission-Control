@@ -227,6 +227,14 @@
         {
           "when": "Thu 6:15 PM",
           "text": "Trimmed two quiet routines down to weekdays only."
+        },
+        {
+          "when": "Thu 11:00 AM",
+          "text": "Lined up Monday's speakers in one list."
+        },
+        {
+          "when": "Wed 4:40 PM",
+          "text": "Sent the team a short midweek check-in."
         }
       ],
       "open": [
@@ -235,6 +243,30 @@
           "what": "A tight one-page outline of what the team will cover on Monday. The draft is ready.",
           "why": "Atlas is holding the send until you say it looks right.",
           "todo": "Open Atlas's chat, take a look, and say send — or ask for a tweak."
+        },
+        {
+          "t": "Confirm the Friday wrap-up time",
+          "what": "A short Friday wrap-up is on the draft calendar at 4 PM.",
+          "why": "Atlas will book it once you confirm the time.",
+          "todo": "Say the time works, or suggest another."
+        },
+        {
+          "t": "Pick a title for the monthly recap",
+          "what": "Two title options are ready for the monthly recap.",
+          "why": "The recap stays in draft until a title is chosen.",
+          "todo": "Pick one of the two titles in Atlas's chat."
+        },
+        {
+          "t": "Say yes to the new digest format",
+          "what": "A tighter morning digest layout is ready to try next week.",
+          "why": "Atlas will keep the current format until you say to switch.",
+          "todo": "Say yes to try it, or keep the current layout."
+        },
+        {
+          "t": "Review the quiet-hours note",
+          "what": "A short note on weekend quiet hours is ready for a quick look.",
+          "why": "Nothing changes until you approve it.",
+          "todo": "Read it in Atlas's chat and say send, or ask for a tweak."
         }
       ],
       "routines": [
@@ -303,6 +335,18 @@
         {
           "when": "Thu 2:11 PM",
           "text": "Flagged two sources that still need a yes or no."
+        },
+        {
+          "when": "Wed 5:15 PM",
+          "text": "Filed a one-page note on the midweek sources."
+        },
+        {
+          "when": "Wed 9:30 AM",
+          "text": "Skimmed overnight public notes."
+        },
+        {
+          "when": "Tue 4:00 PM",
+          "text": "Tidied the research inbox."
         }
       ],
       "open": [
@@ -311,6 +355,24 @@
           "what": "The brief is otherwise ready. Two of the four public sources still need a yes or no.",
           "why": "Scout will finish and send it once you choose.",
           "todo": "Tell Scout which two sources to keep."
+        },
+        {
+          "t": "Approve the short market recap",
+          "what": "A half-page recap of this week's public notes is ready.",
+          "why": "Scout is holding the send for a quick yes.",
+          "todo": "Read it in Scout's chat and say send, or ask for a rewrite."
+        },
+        {
+          "t": "Choose a title for the weekly brief",
+          "what": "Three short title options are ready for the weekly brief.",
+          "why": "The brief stays untitled until you pick one.",
+          "todo": "Pick a title in Scout's chat."
+        },
+        {
+          "t": "Flag any source to drop next week",
+          "what": "The source list for next week is otherwise set.",
+          "why": "Scout will keep the current list unless you drop one.",
+          "todo": "Name any source to drop, or say keep them all."
         }
       ],
       "routines": [

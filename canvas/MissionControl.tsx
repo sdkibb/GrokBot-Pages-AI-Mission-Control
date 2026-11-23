@@ -53,8 +53,8 @@ const BOTS: Bot[] = [
     key: "atlas", name: "Atlas", role: "Coordinates the team", color: "#6366f1",
     d7: 27, d30: 26, mix: [16, 8, 3], trend: [2, 2, 3, 4, 3, 5, 4, 4],
     last: "Wrapped Monday's briefing outline and sent it for a quick yes",
-    recent: [{"when": "Sat 11:20 AM", "text": "Wrapped Monday's briefing outline and sent it for a quick yes."}, {"when": "Fri 4:02 PM", "text": "Rebuilt the weekly briefing around open items and usage."}, {"when": "Fri 11:20 AM", "text": "Moved the mail router to four weekday checks."}, {"when": "Thu 6:15 PM", "text": "Trimmed two quiet routines down to weekdays only."}],
-    open: [{"t": "Approve Monday's briefing outline", "what": "A tight one-page outline of what the team will cover on Monday. The draft is ready.", "why": "Atlas is holding the send until you say it looks right.", "todo": "Open Atlas's chat, take a look, and say send — or ask for a tweak."}],
+    recent: [{"when": "Sat 11:20 AM", "text": "Wrapped Monday's briefing outline and sent it for a quick yes."}, {"when": "Fri 4:02 PM", "text": "Rebuilt the weekly briefing around open items and usage."}, {"when": "Fri 11:20 AM", "text": "Moved the mail router to four weekday checks."}, {"when": "Thu 6:15 PM", "text": "Trimmed two quiet routines down to weekdays only."}, {"when": "Thu 11:00 AM", "text": "Lined up Monday's speakers in one list."}, {"when": "Wed 4:40 PM", "text": "Sent the team a short midweek check-in."}],
+    open: [{"t": "Approve Monday's briefing outline", "what": "A tight one-page outline of what the team will cover on Monday. The draft is ready.", "why": "Atlas is holding the send until you say it looks right.", "todo": "Open Atlas's chat, take a look, and say send — or ask for a tweak."}, {"t": "Confirm the Friday wrap-up time", "what": "A short Friday wrap-up is on the draft calendar at 4 PM.", "why": "Atlas will book it once you confirm the time.", "todo": "Say the time works, or suggest another."}, {"t": "Pick a title for the monthly recap", "what": "Two title options are ready for the monthly recap.", "why": "The recap stays in draft until a title is chosen.", "todo": "Pick one of the two titles in Atlas's chat."}, {"t": "Say yes to the new digest format", "what": "A tighter morning digest layout is ready to try next week.", "why": "Atlas will keep the current format until you say to switch.", "todo": "Say yes to try it, or keep the current layout."}, {"t": "Review the quiet-hours note", "what": "A short note on weekend quiet hours is ready for a quick look.", "why": "Nothing changes until you approve it.", "todo": "Read it in Atlas's chat and say send, or ask for a tweak."}],
     routines: [
       { name: "Team morning digest", sched: "Weekdays about 8 AM", runs: "5", s7: "3%", s30: "4%", active: true },
       { name: "Usage dashboard refresh", sched: "Weekdays about 9 AM, 1 PM, 5 PM", runs: "15", s7: "2%", s30: "2%", active: true },
@@ -66,8 +66,8 @@ const BOTS: Bot[] = [
     key: "scout", name: "Scout", role: "Research and briefings", color: "#6366f1",
     d7: 19, d30: 16, mix: [16, 2, 1], trend: [1, 1, 1, 2, 2, 8, 2, 2],
     last: "Finished a one-page market brief from four public notes",
-    recent: [{"when": "Fri 3:40 PM", "text": "Finished a one-page market brief from four public notes."}, {"when": "Thu 2:11 PM", "text": "Flagged two sources that still need a yes or no."}],
-    open: [{"t": "Pick the two sources for the market brief", "what": "The brief is otherwise ready. Two of the four public sources still need a yes or no.", "why": "Scout will finish and send it once you choose.", "todo": "Tell Scout which two sources to keep."}],
+    recent: [{"when": "Fri 3:40 PM", "text": "Finished a one-page market brief from four public notes."}, {"when": "Thu 2:11 PM", "text": "Flagged two sources that still need a yes or no."}, {"when": "Wed 5:15 PM", "text": "Filed a one-page note on the midweek sources."}, {"when": "Wed 9:30 AM", "text": "Skimmed overnight public notes."}, {"when": "Tue 4:00 PM", "text": "Tidied the research inbox."}],
+    open: [{"t": "Pick the two sources for the market brief", "what": "The brief is otherwise ready. Two of the four public sources still need a yes or no.", "why": "Scout will finish and send it once you choose.", "todo": "Tell Scout which two sources to keep."}, {"t": "Approve the short market recap", "what": "A half-page recap of this week's public notes is ready.", "why": "Scout is holding the send for a quick yes.", "todo": "Read it in Scout's chat and say send, or ask for a rewrite."}, {"t": "Choose a title for the weekly brief", "what": "Three short title options are ready for the weekly brief.", "why": "The brief stays untitled until you pick one.", "todo": "Pick a title in Scout's chat."}, {"t": "Flag any source to drop next week", "what": "The source list for next week is otherwise set.", "why": "Scout will keep the current list unless you drop one.", "todo": "Name any source to drop, or say keep them all."}],
     routines: [
       { name: "Overnight research sweep", sched: "Daily about 6 AM", runs: "7", s7: "2%", s30: "2%", active: true }
     ],
@@ -363,8 +363,20 @@ function BotBody(props: { b: Bot }) {
   const theme = useGrokTheme();
   const b = props.b;
   const [showPaused, setShowPaused] = useState<boolean>(false);
+  const [moreWait, setMoreWait] = useState<boolean>(false);
+  const [moreRecent, setMoreRecent] = useState<boolean>(false);
+  const LIST_PREVIEW = 3;
   const active = b.routines.filter((r: Rt) => r.active);
   const paused = b.routines.filter((r: Rt) => !r.active);
+  const openVis = moreWait ? b.open : b.open.slice(0, LIST_PREVIEW);
+  const recentVis = moreRecent ? b.recent : b.recent.slice(0, LIST_PREVIEW);
+  const moreLink = (n: number, on: boolean, toggle: () => void) =>
+    n > LIST_PREVIEW ? (
+      <div role="button" tabIndex={0} onClick={toggle} style={{ fontSize: 13, fontWeight: 650, color: b.color, cursor: "pointer", padding: "8px 2px", display: "flex", alignItems: "center", gap: 4 }}>
+        {on ? "Show less" : "Show " + (n - LIST_PREVIEW) + " more"}
+        <span style={{ fontSize: 16, lineHeight: 1, display: "inline-block", transform: on ? "rotate(90deg)" : "none", transition: "transform 0.15s" }}>›</span>
+      </div>
+    ) : null;
   const mini = (label: string, value: string) => (
     <div style={{ flex: "1 1 90px", borderRadius: 14, padding: "10px 12px", background: "linear-gradient(135deg," + b.color + "26," + b.color + "0d)", border: "1px solid " + b.color + "40" }}>
       <div style={{ fontSize: 11.5, fontWeight: 650, color: theme.text.secondary, textTransform: "uppercase", letterSpacing: "0.04em" }}>{label}</div>
@@ -389,10 +401,11 @@ function BotBody(props: { b: Bot }) {
       ) : null}
       {b.note ? <div style={{ fontSize: 12.5, color: theme.text.tertiary }}>{b.note}</div> : null}
       {b.open.length > 0 ? head("Waiting on you") : null}
-      {b.open.map((o: Open, i: number) => <WaitItem key={i} o={o} color={b.color} />)}
+      {openVis.map((o: Open, i: number) => <WaitItem key={i} o={o} color={b.color} />)}
+      {moreLink(b.open.length, moreWait, () => setMoreWait(!moreWait))}
       {head("Recent work")}
       <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        {b.recent.map((r: Item, i: number) => (
+        {recentVis.map((r: Item, i: number) => (
           <div key={i} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
             <span style={{ width: 8, height: 8, marginTop: 6, borderRadius: 9999, background: b.color, flex: "none" }} />
             <div style={{ fontSize: 13.5, lineHeight: 1.45, color: theme.text.primary }}>
@@ -402,6 +415,7 @@ function BotBody(props: { b: Bot }) {
           </div>
         ))}
       </div>
+      {moreLink(b.recent.length, moreRecent, () => setMoreRecent(!moreRecent))}
       {b.routines.length > 0 ? head("Routines") : null}
       {active.map((r: Rt, i: number) => <RtRow key={i} r={r} color={b.color} />)}
       {paused.length > 0 ? (
