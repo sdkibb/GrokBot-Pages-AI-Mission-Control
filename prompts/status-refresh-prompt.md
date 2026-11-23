@@ -9,6 +9,8 @@ Refresh the status on my AI Mission Control Page.
 
 Pull a fresh Grok Bot usage report with limit 20 so every bot is included, not just the top 5. Sync each bot's routines (active or paused, schedule, and shares).
 
+Drop any routine a bot reports as deleted and never re-add it from usage history: a deleted routine can keep a usage share for up to 30 days, so a share in the report is not proof the routine still exists.
+
 Read each bot's status file instead of that bot's chat history. The mapping of agent id → Page bot key and name is in /workspace/mission-control/bots.json. Every bot in the fleet is listed there, including a trading or investing bot if I have one. Each file lives at /workspace/mission-control/status/<agentId>.json and follows the "Mission Control status file" skill (botId, bot, updated, last, recent of up to 10 lines newest first, waiting of up to 10 open items with t / what / why / todo; keep only the most important, no need to fill all 10).
 
 From each readable file, fill that bot's last line, recent work, and open waiting items. If a file is missing or unreadable, add it to the gap notes and leave that bot's last / recent / waiting fields as they are (or empty). If a file's `updated` timestamp is more than 3 days old, flag it as stale in the gap notes.
