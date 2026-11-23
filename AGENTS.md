@@ -18,8 +18,9 @@ Real usage numbers and real bot names do not belong in this repository. The comm
 1. Ask them to clone this repo, or copy `index.html`.
 2. For a **private Grok Bot Page**: paste `prompts/build-prompt.md` into a chat with their main bot. The bot should rebuild the Page from their own usage report (limit 20, so every bot is included) and keep the layout here. They can also paste `canvas/MissionControl.tsx` and then ask the bot to replace the example data blocks with their report.
 3. For a **plain browser**: open `index.html`, or serve the folder. The example dataset is already embedded.
-4. Optionally add a weekday refresh routine with `prompts/refresh-prompt.md`.
-5. If they want a design tweak later, use `prompts/customize-prompt.md` so the data blocks stay untouched.
+4. Add two separate refresh routines with the prompts under `prompts/` (see `prompts/refresh-prompt.md`): a numbers-only run hourly on the hour from 7 AM to 7 PM, and a status run hourly on the half hour in the same window.
+5. Give every bot the "Mission Control status file" skill (`skills/mission-control-status-file/SKILL.md`) and a standing rule to write its file whenever a waiting item is added, answered, completed or dropped, or at the end of a turn with notable work. List every bot, including a trading or investing bot if they have one, in `/workspace/mission-control/bots.json`. Use placeholders such as `<trader-agent-id>` in this repository.
+6. If they want a design tweak, use `prompts/customize-prompt.md` so the data blocks stay untouched.
 
 ## Data schema
 
@@ -33,21 +34,23 @@ Documented field-by-field in `data/SCHEMA.md`. In short:
 - `days` / `type7` — 8 UTC-day labels and the three daily series.
 - `days30` / `days30Labels` — 31 daily shares and axis labels.
 - `activity.days` — per-bot daily shares for the heatmap. `activity.hours` is `null` until a real hourly source exists.
-- `bots[]` — `key`, `name`, `role`, `d7`, `d30`, `mix`, `trend`, `last`, `recent[]`, `open[]`, `routines[]`.
-- `dismissed[]` — `{ bot, match, title, date }`. `match` is a lowercase substring of the waiting-item title. The refresh must keep these hidden.
-- `gaps[]` — notes under "What this page can't see".
+- `bots[]` — `key`, `name`, `role`, `d7`, `d30`, `mix`, `trend`, `last`, `recent[]`, `open[]`, `routines[]`. On a live Page, `d7` and `d30` come from the numbers-only run; `last`, `recent`, and `open` come from each bot's status file via the status run; `routines` are synced by the status run.
+- `dismissed[]` — `{ bot, match, title, date }`. `match` is a lowercase substring of the waiting-item title. The status run keeps these hidden and never shrinks this block.
+- `gaps[]` — notes under "What this page can't see". The status run adds a note when a status file is missing, unreadable, or older than 3 days (stale).
 
 After any data edit, `data/example.json` and the embedded `#amc-data` block must match. `scripts/leak-check.sh` verifies that.
 
 ## How to update data without touching the design
 
-Change only the data:
+Edit only the data:
 
 - In the standalone page: edit `data/example.json`, then copy it into the `#amc-data` script tag in `index.html`, **or** regenerate that tag and leave the CSS and JS alone.
 - In the Grok Bot Page: edit the constants listed above. Do not rewrite components, styles, or event handlers.
-- On a live personal Page: run the refresh routine (`prompts/refresh-prompt.md`). It should pull a usage report with **limit 20**, rewrite only the data blocks, keep dismissed items, and stay quiet unless it fails.
+- On a live personal Page, two separate routines (`prompts/refresh-prompt.md`) edit data only and stay quiet unless a run fails:
+  - The numbers-only run (`prompts/numbers-refresh-prompt.md`) pulls a usage report with **limit 20** and writes the snapshot time, the weekly limit block, and each bot's 7-day and 30-day share. It does not read chats or status files.
+  - The status run (`prompts/status-refresh-prompt.md`) pulls the full usage report, syncs routines, honours dismissed items without shrinking that block, reads each bot's status file instead of chat history, keeps confidential work at area level and investigation work to case references, and strips secrets.
 
-Never paste a real usage report into this public repository.
+Never paste a real usage report, a live `bots.json`, or real status files into this public repository.
 
 ## Design rules
 
@@ -84,6 +87,6 @@ Before every push:
 2. Fix any hit. Do not weaken a pattern to make the check pass.
 3. `scripts/install-hooks.sh` installs a pre-push hook that runs the same check and blocks the push on failure. Install it after `git clone` or `git init`.
 
-Never commit `data/private*.json`, real usage reports, real bot or people names, personal URLs, canvas IDs, emails, tokens, or avatar assets from a live Page. Screenshots in `docs/` must show only the example dataset; strip EXIF before committing (`scripts/screenshot.sh` does this).
+Never commit `data/private*.json`, real usage reports, real bot or people names, personal URLs, canvas IDs, emails, tokens, avatar assets from a live Page, real agent ids, or live status files. Screenshots in `docs/` must show only the example dataset; strip EXIF before committing (`scripts/screenshot.sh` does this).
 
 Do not force-push to `main`.

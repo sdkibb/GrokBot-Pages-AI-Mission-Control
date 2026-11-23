@@ -1,0 +1,14 @@
+{
+  "note": "Example mapping only. On a live Page, list every bot in the fleet — including a trading or investing bot if you have one — each with its real agent id. In this repository use placeholders such as <trader-agent-id>. Do not commit real agent ids.",
+  "bots": [
+    { "agentId": "<atlas-agent-id>", "key": "atlas", "name": "Atlas" },
+    { "agentId": "<scout-agent-id>", "key": "scout", "name": "Scout" },
+    { "agentId": "<ledger-agent-id>", "key": "ledger", "name": "Ledger" },
+    { "agentId": "<quill-agent-id>", "key": "quill", "name": "Quill" },
+    { "agentId": "<pilot-agent-id>", "key": "pilot", "name": "Pilot" },
+    { "agentId": "<nova-agent-id>", "key": "nova", "name": "Nova" },
+    { "agentId": "<harbor-agent-id>", "key": "harbor", "name": "Harbor" },
+    { "agentId": "<relay-agent-id>", "key": "relay", "name": "Relay" },
+    { "agentId": "<trader-agent-id>", "key": "trader", "name": "Trader" }
+  ]
+}

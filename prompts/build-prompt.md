@@ -3,7 +3,7 @@
 Paste this into a chat with your main Grok Bot to build a private AI Mission Control Page from this template. The Page should use your real usage report, not the example numbers in this repository.
 
 ```
-Build me a private Grok Bot Page called "AI Mission Control" from the template in this repository (index.html and canvas/MissionControl.tsx). Follow the layout and design rules exactly. Use my real Grok Bot usage report, with limit 20 so every bot is included, plus each bot's recent messages and routines.
+Build me a private Grok Bot Page called "AI Mission Control" from the template in this repository (index.html and canvas/MissionControl.tsx). Follow the layout and design rules exactly. Use my real Grok Bot usage report, with limit 20 so every bot is included, plus each bot's routines and the status files described in this repository (not chat histories).
 
 Layout:
 - Compact header: a generic radar-style icon on the left (no initials), the title "AI Mission Control" beside it, a small "Updated …" line under the title, and an icon-only Refresh button. No page description at the top.
@@ -21,5 +21,10 @@ Design rules:
 - Pull-to-refresh and the Refresh button must redraw the Page in place. Do not do a full reload; that can go blank in a home-screen app. A pull cannot fetch new numbers on its own — say so in a short toast with the last update time.
 - Keep the Page private. Never put real names or numbers in a public repo.
 
-Then create a weekday routine that rebuilds only the data blocks from a fresh usage report (limit 20), keeps any waiting items I have already dismissed, and stays quiet unless the run fails. Use the refresh prompt in this repository as the template.
+Then create two separate scheduled routines that edit data only and stay quiet unless a run fails. Use the prompts in this repository as the templates:
+
+1. A numbers-only run, hourly on the hour from 7 AM to 7 PM every day, that pulls the usage report once (limit 20) and writes only the snapshot time, the weekly limit block, and each bot's 7-day and 30-day share. It does not read chats or status files.
+2. A status run, hourly on the half hour from 7 AM to 7 PM every day, that pulls the full usage report, syncs routines, honours dismissed items without shrinking that block, reads each bot's status file instead of chat history, keeps confidential work at area level and investigation work to case references, and strips secrets. Missing or unreadable files go in the gap notes; a file older than 3 days is flagged stale.
+
+Give every bot a standing rule to keep its status file current per the "Mission Control status file" skill, and list every bot in /workspace/mission-control/bots.json, including a trading or investing bot if I have one.
 ```

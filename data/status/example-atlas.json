@@ -1,0 +1,19 @@
+{
+  "botId": "<atlas-agent-id>",
+  "bot": "Atlas",
+  "updated": "2026-11-21T14:00:00-05:00",
+  "last": "Wrapped Monday's briefing outline and sent it for a quick yes",
+  "recent": [
+    "Wrapped Monday's briefing outline and sent it for a quick yes.",
+    "Rebuilt the weekly briefing around open items and usage.",
+    "Moved the mail router to four weekday checks."
+  ],
+  "waiting": [
+    {
+      "t": "Approve Monday's briefing outline",
+      "what": "A tight one-page outline of what the team will cover on Monday. The draft is ready.",
+      "why": "Atlas is holding the send until you say it looks right.",
+      "todo": "Open Atlas's chat, take a look, and say send — or ask for a tweak."
+    }
+  ]
+}

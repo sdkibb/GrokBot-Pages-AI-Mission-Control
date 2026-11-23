@@ -72,25 +72,32 @@ A Grok Bot Page only runs inside Grok Bot. Another design model can edit the cod
 
 ## How refresh works
 
-A scheduled routine should **update data only** and leave the layout alone. Use [`prompts/refresh-prompt.md`](prompts/refresh-prompt.md).
+Two scheduled routines refresh a live Page. They stay as separate jobs so their timing can be set independently. Both edit **data only** and leave the layout alone. See [`prompts/refresh-prompt.md`](prompts/refresh-prompt.md).
 
-Typical flow:
+Both run hourly from 7 AM to 7 PM every day in your time zone:
 
-1. Pull a fresh Grok Bot usage report with **limit 20**.
-2. Rewrite the data blocks (snapshot, weekly limit, mix, charts, roster, heatmap, gaps).
-3. Keep any waiting items you have already dismissed.
-4. Stay quiet unless the run fails.
+1. **Numbers-only run** (on the hour) — pulls the plan usage report once (ask for up to 20 bots) and, in one batched edit, writes the snapshot time, the weekly limit block (percent used and reset time), and each bot's 7-day and 30-day share. It does not read chats or status files, and it does not sync routines. Prompt: [`prompts/numbers-refresh-prompt.md`](prompts/numbers-refresh-prompt.md).
+2. **Status run** (on the half hour, so the two never edit the Page at the same time) — pulls the full usage report, syncs routines (active or paused per bot), honours the dismissed-items block and never shrinks it, keeps confidential or employer-sensitive work at area level, keeps investigation-type work to case references, strips any secrets, and reads each bot's status file instead of that bot's chat history. A missing or unreadable file is added to the gap notes; a file older than 3 days is flagged stale. Prompt: [`prompts/status-refresh-prompt.md`](prompts/status-refresh-prompt.md).
 
-On the Page itself, pull-to-refresh and the Refresh button redraw in place so a home-screen app does not go blank. They cannot fetch new numbers on their own — they show the last saved snapshot. For a live Page, ask your bot to “update Mission Control,” or let the routine do it.
+On the Page itself, pull-to-refresh and the Refresh button redraw in place so a home-screen app does not go blank. They cannot fetch new numbers on their own — they show the last saved snapshot. For a live Page, ask your bot to “update Mission Control,” or let the routines do it.
 
-A good weekday cadence is about three runs (for example 9 AM, 1 PM, and 5 PM in your time zone). Ask before changing a schedule that is already in place.
+## Status files
+
+Recent work and waiting items on a live Page come from a small JSON file that each bot maintains, not from reading chat histories. The shared skill [`skills/mission-control-status-file/SKILL.md`](skills/mission-control-status-file/SKILL.md) defines the format and the privacy rules.
+
+- Path: `/workspace/mission-control/status/<agentId>.json`.
+- Mapping: `/workspace/mission-control/bots.json` lists every bot in the fleet — including a trading or investing bot if you have one — with its agent id, Page key, and name. This repository ships an example at [`data/bots.example.json`](data/bots.example.json) that uses placeholders such as `<trader-agent-id>`. Do not commit real agent ids.
+- Fields: `botId`, `bot`, `updated` (ISO 8601 with the user's offset), `last`, `recent` (up to 3 lines, newest first), and `waiting` items `{ t, what, why, todo }`. An example file is at [`data/status/example-atlas.json`](data/status/example-atlas.json).
+- Write to a temp file in the same folder, then move it over the real file, and validate it with `jq` or `python3 -m json.tool`.
+- Each bot keeps a standing rule: whenever an item waiting on the user is added, answered, completed or dropped, or at the end of a turn with notable work, it writes its file. It skips the write when nothing changed.
+- Never put secrets, passwords, tokens, codes, or card or account numbers in the file. Confidential work stays at area level. Investigation work uses case references only.
 
 ## Privacy
 
 This public template must stay free of personal data:
 
 - Committed bots (Atlas, Scout, Ledger, Quill, Pilot, Nova, Harbor, Relay) and every number in `data/example.json` are invented and labelled as example data.
-- Do not commit real usage percents, real bot names, people, organisations, emails, canvas IDs, tokens, or live avatar assets.
+- Do not commit real usage percents, real bot names, people, organisations, emails, canvas IDs, tokens, live avatar assets, or real agent ids.
 - Real data belongs in a private Page, or in a file such as `data/private.json` that is gitignored.
 - Before every push, run `scripts/leak-check.sh`. `scripts/install-hooks.sh` installs a pre-push hook that does the same and blocks the push if anything is flagged.
 
@@ -105,7 +112,10 @@ If you publish your own Page for others, ship a copy that still uses mock data, 
 | `data/example.json` | The example dataset (must match the embedded block) |
 | `data/SCHEMA.md` | Field-by-field schema |
 | `docs/` | Desktop, mobile, tile-popup, expanded-bot, heatmap, and trends screenshots |
-| `prompts/` | Build, refresh, and customize prompts |
+| `prompts/` | Build, numbers-only refresh, status refresh, and customize prompts |
+| `skills/mission-control-status-file/` | Shared skill for the status-file format, write method, and privacy rules |
+| `data/bots.example.json` | Example agent-id → bot-key mapping (placeholders only) |
+| `data/status/example-atlas.json` | Example status file with invented data |
 | `AGENTS.md` | Instructions for AI agents that edit or publish this |
 | `scripts/leak-check.sh` | Denylist + gitleaks + trufflehog |
 | `scripts/install-hooks.sh` | Pre-push hook installer |

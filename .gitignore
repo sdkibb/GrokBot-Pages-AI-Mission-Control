@@ -12,3 +12,7 @@ node_modules/
 *.log
 __pycache__/
 *.pyc
+# Live fleet mapping and status files (examples are committed separately)
+data/bots.json
+data/status/*
+!data/status/example-*.json

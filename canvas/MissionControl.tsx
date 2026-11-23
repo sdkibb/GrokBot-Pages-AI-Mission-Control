@@ -1,9 +1,9 @@
 import { useGrokTheme, useState, useRef, ReactNode } from "grok/canvas";
 
 // AI Mission Control — Grok Bot Page source (example data only).
-// Refresh routine: update the data blocks below, do not rewrite the layout.
+// The numbers-only and status refresh routines edit the data blocks below and leave the layout alone.
 
-// ===== Snapshot data (the refresh routine updates these) =====
+// ===== Snapshot data (the numbers-only and status routines edit these) =====
 const SNAPSHOT = "Sat Nov 21 · 2:00 PM ET";
 const WEEK = { used: 49.0, resets: "Tue Nov 24, 6:30 PM ET", elapsed: 54, resetAt: "2026-11-24T18:30:00-05:00", extraCredits: 0 };
 const WEEK_MS = 7 * 24 * 3600 * 1000;

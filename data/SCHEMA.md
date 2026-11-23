@@ -1,8 +1,8 @@
 # Example data schema
 
-`data/example.json` is the invented dataset used in `index.html` (embedded as `#amc-data`) and in `canvas/MissionControl.tsx` (as the data constants at the top of the file). Keep those three in sync. A refresh should change only this data, not the layout.
+`data/example.json` is the invented dataset used in `index.html` (embedded as `#amc-data`) and in `canvas/MissionControl.tsx` (as the data constants at the top of the file). Keep those three in sync. On a live Page, the numbers-only run and the status run edit only this data, not the layout.
 
-All of it is example data. Real bot names, people, and usage numbers must never be committed here.
+All of it is example data. Real bot names, people, usage numbers, and agent ids must never be committed here.
 
 ## Root object
 
@@ -27,8 +27,8 @@ All of it is example data. Real bot names, people, and usage numbers must never 
 | `activity.days` | object | Map of bot `key` → array of daily shares, same length as `days`. Used by the heatmap. |
 | `activity.hours` | object or `null` | Map of bot `key` → 24 hourly shares. Leave `null` until a real hourly source exists; the By hour switch then shows an empty state. |
 | `bots` | array | Roster. See below. |
-| `dismissed` | array | Waiting items to hide on every refresh. `{ bot, match, title, date }`. `match` is a lowercase substring of the item title. |
-| `gaps` | string[] | Lines under "What this page can't see". |
+| `dismissed` | array | Waiting items the status run hides. `{ bot, match, title, date }`. `match` is a lowercase substring of the item title. This block is never shrunk. |
+| `gaps` | string[] | Lines under "What this page can't see". Includes a missing, unreadable, or stale (older than 3 days) status file. |
 
 ## Bot object
 
@@ -64,3 +64,23 @@ All of it is example data. Real bot names, people, and usage numbers must never 
 - This week tiles stay visually neutral. Red and green are only for the projection chip and for usage elevation on a bot row (highest 7-day share is red; 15% or more is amber). A waiting count is grey, or amber only if that bot has 4 or more waiting items.
 - Waiting on you starts collapsed.
 - The accordion opens one section at a time.
+
+## Status file
+
+On a live Page, `last`, `recent`, and `open` waiting items come from each bot's status file, not from chat histories. The shared skill is `skills/mission-control-status-file/SKILL.md`. An example file is `data/status/example-atlas.json`. The fleet mapping is `data/bots.example.json` (placeholders only).
+
+Live files live at `/workspace/mission-control/status/<agentId>.json`, with the mapping in `/workspace/mission-control/bots.json`. Every bot in the fleet is listed there, including a trading or investing bot if you have one, with a placeholder such as `<trader-agent-id>` in this repository.
+
+| Field | Type | Meaning |
+| --- | --- | --- |
+| `botId` | string | The bot's agent id. |
+| `bot` | string | Display name. |
+| `updated` | string | ISO 8601 timestamp with the user's offset. A file older than 3 days is flagged stale. |
+| `last` | string | One-line latest work. |
+| `recent` | string[] | Up to 3 short lines, newest first. |
+| `waiting` | `{ t, what, why, todo }[]` | Open items only. An empty list means nothing is waiting. |
+
+Write to a temp file in the same folder, then move it over the real file, and validate with `jq` or `python3 -m json.tool`. Each bot writes only its own file, when a waiting item is added, answered, completed or dropped, or at the end of a turn with notable work. It skips the write when nothing changed.
+
+Never put secrets, passwords, tokens, codes, or card or account numbers in the file. Confidential or employer-sensitive work stays at area level. Investigation work uses case references only.
+
